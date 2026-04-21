@@ -7,7 +7,15 @@ di layer data, bukan di fasad re-export.
 from __future__ import annotations
 from typing import Any
 
+from core.roles import Role, get_binding
 from memory.knowledge_graph import KnowledgeGraphIngestor, KGTriple
+
+# Role yang konsumsi-nya khusus (jadi predicate sendiri, bukan masuk metadata extra).
+_CORE_ROLES = {
+    Role.AGEN, Role.PREDIKAT, Role.PASIEN,
+    Role.SUBJECT, Role.PREDICATE, Role.OBJECT,
+    Role.LOKASI, Role.WAKTU,
+}
 
 
 def ingest_dataset_to_kg(kg: KnowledgeGraphIngestor, dataset: dict[str, Any]) -> int:
@@ -16,19 +24,19 @@ def ingest_dataset_to_kg(kg: KnowledgeGraphIngestor, dataset: dict[str, Any]) ->
     count = 0
     for obs in dataset.get("observations", []):
         b = obs.get("bindings", {})
-        agen = b.get("agen") or b.get("subject")
-        pred = b.get("predikat") or b.get("predicate")
-        pas = b.get("pasien") or b.get("object")
+        agen = get_binding(b, Role.AGEN)
+        pred = get_binding(b, Role.PREDIKAT)
+        pas = get_binding(b, Role.PASIEN)
         meta_base = {"obs_id": obs.get("id")}
 
         if agen and pred and pas:
-            extra = {k: v for k, v in b.items() if k not in ("agen", "predikat", "pasien", "subject", "predicate", "object")}
+            extra = {k: v for k, v in b.items() if k not in _CORE_ROLES}
             kg.ingest_triple(KGTriple(subject=agen, predicate=pred, object=pas, metadata={**meta_base, **extra}))
             count += 1
-        if agen and b.get("lokasi"):
-            kg.ingest_triple(KGTriple(subject=agen, predicate="di", object=b["lokasi"], metadata=dict(meta_base)))
+        if agen and b.get(Role.LOKASI):
+            kg.ingest_triple(KGTriple(subject=agen, predicate="di", object=b[Role.LOKASI], metadata=dict(meta_base)))
             count += 1
-        if agen and b.get("waktu"):
-            kg.ingest_triple(KGTriple(subject=agen, predicate="pada", object=b["waktu"], metadata=dict(meta_base)))
+        if agen and b.get(Role.WAKTU):
+            kg.ingest_triple(KGTriple(subject=agen, predicate="pada", object=b[Role.WAKTU], metadata=dict(meta_base)))
             count += 1
     return count

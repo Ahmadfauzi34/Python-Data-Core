@@ -5,6 +5,7 @@ import numpy as np
 from typing import Dict, List, Tuple, Optional, Any
 from dataclasses import dataclass
 from core.engine import FHRREngine
+from core.roles import Role, TripleKey, QUESTION_TO_ROLE
 
 @dataclass
 class TrainingResult:
@@ -20,11 +21,8 @@ class FHRRResearchTrainer:
         self.dataset = dataset
         self.results: List[TrainingResult] = []
 
-    QTYPES = {
-        'siapa': 'agen', 'apa': 'pasien', 'di mana': 'lokasi', 'kapan': 'waktu',
-        'mengapa': 'sumber', 'bagaimana': 'atribut', 'dengan apa': 'instrumen',
-        'kenapa': 'sumber', 'siapakah': 'agen', 'apakah': 'verify'
-    }
+    # 'apakah' override ke 'verify' (yes/no), bukan target role biasa.
+    QTYPES = {**QUESTION_TO_ROLE, 'apakah': 'verify'}
 
     def _extract_qtype(self, question: str) -> str:
         q_lower = question.lower().strip()
@@ -244,11 +242,7 @@ class FHRREvaluator:
 
     def _extract_qtype(self, question: str) -> str:
         q_lower = question.lower().strip()
-        mapping = {
-            'siapa': 'agen', 'apa': 'pasien', 'di mana': 'lokasi', 'kapan': 'waktu',
-            'mengapa': 'sumber', 'bagaimana': 'atribut', 'dengan apa': 'instrumen',
-            'kenapa': 'sumber', 'siapakah': 'agen', 'apakah': 'verify'
-        }
+        mapping = {**QUESTION_TO_ROLE, 'apakah': 'verify'}
         for prefix, qtype in sorted(mapping.items(), key=lambda x: -len(x[0])):
             if q_lower.startswith(prefix):
                 return qtype
@@ -308,9 +302,9 @@ class FHRREvaluator:
         for entry in self.engine.episodic_buffer:
             meta = entry.get('metadata', {})
             if meta.get('type') == 'kg_triple':
-                kg_tokens.add(meta.get('subject'))
-                kg_tokens.add(meta.get('object'))
-                kg_tokens.add(meta.get('predicate'))
+                kg_tokens.add(meta.get(TripleKey.SUBJECT))
+                kg_tokens.add(meta.get(TripleKey.OBJECT))
+                kg_tokens.add(meta.get(TripleKey.PREDICATE))
 
         transform_tokens = set()
         for t in self.engine.transforms.values():
@@ -473,12 +467,12 @@ class FHRRResearchRunner:
                 related = self._kg.query_entity(entity, top_k=3)
                 for r in related:
                     triple = r['triple']
-                    if triple.get('predicate') == obs['bindings'].get('predikat'):
+                    if triple.get(TripleKey.PREDICATE) == obs['bindings'].get(Role.PREDIKAT):
                         if qtype in triple:
                             return {
                                 'question': qa['question'], 'answer': triple[qtype],
                                 'confidence': r['similarity'], 'mechanism': 'kg_lookup',
-                                'reasoning': f"KG: {triple.get('subject')} {triple.get('predicate')} {triple.get('object')}"
+                                'reasoning': f"KG: {triple.get(TripleKey.SUBJECT)} {triple.get(TripleKey.PREDICATE)} {triple.get(TripleKey.OBJECT)}"
                             }
 
         return {'error': 'Cannot answer', 'question': qa['question']}

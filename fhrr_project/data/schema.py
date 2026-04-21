@@ -10,12 +10,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 
-# Role kanonik. Tambah di sini kalau dataset baru butuh role baru.
-KNOWN_ROLES: set[str] = {
-    "agen", "pasien", "predikat", "lokasi", "waktu",
-    "instrumen", "atribut", "arah", "sumber", "manner",
-    "subject", "predicate", "object",  # alias generik
-}
+from core.roles import ALL_ROLES as KNOWN_ROLES  # noqa: E402,F401
 
 
 @dataclass

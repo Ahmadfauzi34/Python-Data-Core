@@ -7,7 +7,7 @@ Streamlit chat UI di atas sistem FHRR (Fractional Holographic Reduced Representa
 - `main.py` — Streamlit chat UI (entry point)
 - `fhrr_core.py` — fasad/re-export semua komponen FHRR (engine, runner, KG, loader, ingest, dst.)
 - `fhrr_project/` — paket inti (semua sub-folder adalah paket Python dengan `__init__.py`)
-  - `core/` — `engine.py`, `runner.py`, `topology.py`
+  - `core/` — `engine.py`, `runner.py`, `topology.py`, `roles.py` (konstanta `Role.*`, `TripleKey.*`, `QUESTION_TO_ROLE`)
   - `data/`
     - `datasets/*.yaml` — sumber kebenaran dataset (default: `default.yaml`)
     - `schema.py` — `validate_dataset()` (cek struktur, ID duplikat, dangling reference, role tak dikenal)
@@ -25,3 +25,6 @@ Streamlit chat UI di atas sistem FHRR (Fractional Holographic Reduced Representa
 
 ## Run
 Workflow `Start application`: `streamlit run main.py --server.port 5000 ...`
+
+## Test
+`python -m unittest tests.test_smoke -v` — smoke test: load dataset, validator, ingest, end-to-end query.

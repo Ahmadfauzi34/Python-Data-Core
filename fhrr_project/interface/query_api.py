@@ -7,6 +7,8 @@ from dataclasses import dataclass
 import time
 from collections import Counter
 
+from core.roles import Role, TripleKey
+
 @dataclass
 class QueryResult:
     query: str
@@ -27,12 +29,12 @@ class FHRRQueryInterface:
         self.improver = None
 
         self.qpatterns = {
-            'who': {'prefixes': ['siapa', 'who', 'siapakah', 'orang mana'], 'target_role': 'agen', 'strategy': 'find_subject'},
-            'what': {'prefixes': ['apa', 'what', 'apakah', 'hal apa'], 'target_role': 'pasien', 'strategy': 'find_object'},
-            'where': {'prefixes': ['di mana', 'where', 'dimanakah', 'tempat mana'], 'target_role': 'lokasi', 'strategy': 'find_location'},
-            'when': {'prefixes': ['kapan', 'when', 'waktu kapan'], 'target_role': 'waktu', 'strategy': 'find_time'},
-            'why': {'prefixes': ['mengapa', 'kenapa', 'why'], 'target_role': 'sumber', 'strategy': 'find_cause'},
-            'how': {'prefixes': ['bagaimana', 'how', 'seperti apa'], 'target_role': 'manner', 'strategy': 'find_manner'},
+            'who': {'prefixes': ['siapa', 'who', 'siapakah', 'orang mana'], 'target_role': Role.AGEN, 'strategy': 'find_subject'},
+            'what': {'prefixes': ['apa', 'what', 'apakah', 'hal apa'], 'target_role': Role.PASIEN, 'strategy': 'find_object'},
+            'where': {'prefixes': ['di mana', 'where', 'dimanakah', 'tempat mana'], 'target_role': Role.LOKASI, 'strategy': 'find_location'},
+            'when': {'prefixes': ['kapan', 'when', 'waktu kapan'], 'target_role': Role.WAKTU, 'strategy': 'find_time'},
+            'why': {'prefixes': ['mengapa', 'kenapa', 'why'], 'target_role': Role.SUMBER, 'strategy': 'find_cause'},
+            'how': {'prefixes': ['bagaimana', 'how', 'seperti apa'], 'target_role': Role.MANNER, 'strategy': 'find_manner'},
             'is_true': {'prefixes': ['apakah', 'is', 'does', 'benarkah'], 'target_role': 'verify', 'strategy': 'verify_fact'},
             'analogy': {'prefixes': ['seperti apa', 'analogi', 'ibarat', 'serupa dengan'], 'target_role': 'analogy', 'strategy': 'fiber_transport'}
         }
@@ -97,9 +99,9 @@ class FHRRQueryInterface:
 
         for ent in entities:
             cat = self.engine.token_categories[self.engine.token_names.index(ent)]
-            bindings['pasien'] = ent 
+            bindings[Role.PASIEN] = ent
         for pred in predicates:
-            bindings['predikat'] = pred
+            bindings[Role.PREDIKAT] = pred
 
         if not bindings:
             return QueryResult(raw, "Tidak dapat memahami query", 0.0, 'failed', 'Tidak ada entity dikenali', [])
@@ -116,15 +118,15 @@ class FHRRQueryInterface:
                 related = self.kg.query_entity(ent, top_k=5)
                 for r in related:
                     triple = r['triple']
-                    if triple.get('predicate') in predicates:
+                    if triple.get(TripleKey.PREDICATE) in predicates:
                         sim = r['similarity']
                         if sim > best_sim:
                             best_sim = sim
                             best_match = triple
 
         if best_match:
-            answer = best_match.get('subject', 'tidak diketahui')
-            return QueryResult(raw, answer, best_sim, 'kg_lookup', f"Ditemukan di KG: {best_match.get('subject')} {best_match.get('predicate')} {best_match.get('object')}", [{'entity': best_match.get('object'), 'relation': best_match.get('predicate'), 'sim': best_sim}])
+            answer = best_match.get(TripleKey.SUBJECT, 'tidak diketahui')
+            return QueryResult(raw, answer, best_sim, 'kg_lookup', f"Ditemukan di KG: {best_match.get(TripleKey.SUBJECT)} {best_match.get(TripleKey.PREDICATE)} {best_match.get(TripleKey.OBJECT)}", [{'entity': best_match.get(TripleKey.OBJECT), 'relation': best_match.get(TripleKey.PREDICATE), 'sim': best_sim}])
 
         match, sim = self.engine.cleanup(q_vec, threshold=0.35)
         if match:
@@ -140,9 +142,9 @@ class FHRRQueryInterface:
         for ent in entities:
             cat = self.engine.token_categories[self.engine.token_names.index(ent)]
             if 'manusia' in cat or 'hewan' in cat:
-                bindings['agen'] = ent
+                bindings[Role.AGEN] = ent
         for pred in predicates:
-            bindings['predikat'] = pred
+            bindings[Role.PREDIKAT] = pred
 
         q_vec = self.engine.encode(bindings)
         if q_vec is None: return QueryResult(raw, "Encoding gagal", 0.0, 'failed', '', [])
@@ -152,10 +154,10 @@ class FHRRQueryInterface:
                 related = self.kg.query_entity(ent, top_k=5)
                 for r in related:
                     triple = r['triple']
-                    if triple.get('subject') == ent and triple.get('predicate') in predicates:
-                        return QueryResult(raw, triple.get('object', 'tidak diketahui'), r['similarity'], 'kg_lookup', f"KG: {triple['subject']} {triple['predicate']} {triple['object']}", [])
+                    if triple.get(TripleKey.SUBJECT) == ent and triple.get(TripleKey.PREDICATE) in predicates:
+                        return QueryResult(raw, triple.get(TripleKey.OBJECT, 'tidak diketahui'), r['similarity'], 'kg_lookup', f"KG: {triple[TripleKey.SUBJECT]} {triple[TripleKey.PREDICATE]} {triple[TripleKey.OBJECT]}", [])
 
-        role_vec = self.engine.get_role('pasien')
+        role_vec = self.engine.get_role(Role.PASIEN)
         if q_vec is not None and role_vec is not None:
             unbound = self.engine.unbind(q_vec, role_vec, out=np.zeros(self.engine.dim))
             match, sim = self.engine.cleanup(unbound)
@@ -165,10 +167,10 @@ class FHRRQueryInterface:
         return QueryResult(raw, "Tidak ditemukan", 0.0, 'not_found', '', [])
 
     def _handle_find_location(self, parsed: Dict, raw: str) -> QueryResult:
-        return self._handle_role_query(parsed, raw, 'lokasi')
+        return self._handle_role_query(parsed, raw, Role.LOKASI)
 
     def _handle_find_time(self, parsed: Dict, raw: str) -> QueryResult:
-        return self._handle_role_query(parsed, raw, 'waktu')
+        return self._handle_role_query(parsed, raw, Role.WAKTU)
 
     def _handle_find_cause(self, parsed: Dict, raw: str) -> QueryResult:
         entities = parsed['mentioned_entities']
@@ -185,9 +187,9 @@ class FHRRQueryInterface:
         bindings = {}
         for ent in entities:
             cat = self.engine.token_categories[self.engine.token_names.index(ent)]
-            if 'manusia' in cat: bindings['agen'] = ent
-            elif 'aksi' in cat: bindings['predikat'] = ent
-            else: bindings['pasien'] = ent
+            if 'manusia' in cat: bindings[Role.AGEN] = ent
+            elif 'aksi' in cat: bindings[Role.PREDIKAT] = ent
+            else: bindings[Role.PASIEN] = ent
 
         q_vec = self.engine.encode(bindings)
         if q_vec is None: return QueryResult(raw, "tidak tahu", 0.0, 'failed', '', [])
@@ -251,8 +253,8 @@ class FHRRQueryInterface:
         bindings = {}
         for ent in entities:
             cat = self.engine.token_categories[self.engine.token_names.index(ent)]
-            if 'manusia' in cat or 'hewan' in cat: bindings['agen'] = ent
-        for pred in predicates: bindings['predikat'] = pred
+            if 'manusia' in cat or 'hewan' in cat: bindings[Role.AGEN] = ent
+        for pred in predicates: bindings[Role.PREDIKAT] = pred
 
         q_vec = self.engine.encode(bindings)
         if q_vec is None: return QueryResult(raw, "Encoding gagal", 0.0, 'failed', '', [])
