@@ -5,6 +5,7 @@ description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
     "agents>=1.4.0",
+    "bpemb>=0.3.6",
     "data>=0.4",
     "numpy>=2.4.4",
     "python-interface>=1.6.1",

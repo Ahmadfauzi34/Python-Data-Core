@@ -4,8 +4,21 @@ import time
 from typing import Dict, List, Tuple, Optional, Any
 
 class FHRREngine:
-    def __init__(self, dim: int = 4096, n_hash_tables: int = 12, n_bins: int = 32):
+
+    def __init__(self, dim: int = 4096, n_hash_tables: int = 12, n_bins: int = 32, use_bpemb: bool = False):
         self.dim = dim
+        self.use_bpemb = use_bpemb
+        if use_bpemb:
+            try:
+                from bpemb import BPEmb
+                self.bpemb = BPEmb(lang="id", vs=10000, dim=50)
+                # Fixed random projection matrix for mapping 50d to `dim`
+                np.random.seed(42)
+                self.bpemb_proj = np.random.randn(50, dim) / np.sqrt(50)
+            except ImportError:
+                print("[Engine] Warning: bpemb is not installed. Disabling bpemb integration.")
+                self.use_bpemb = False
+
         self.n_tables = n_hash_tables
         self.n_bins = n_bins
         self.token_names: List[str] = []
@@ -40,6 +53,27 @@ class FHRREngine:
 
     def alloc(self) -> np.ndarray:
         return np.random.uniform(-np.pi, np.pi, self.dim)
+
+    def _get_bpemb_vector(self, name: str) -> Optional[np.ndarray]:
+        if not self.use_bpemb:
+            return None
+        tokens = self.bpemb.encode(name)
+        vecs = []
+        for t in tokens:
+            try:
+                idx = self.bpemb.emb.key_to_index[t]
+                vecs.append(self.bpemb.vectors[idx])
+            except KeyError:
+                continue
+        if not vecs:
+            return None
+        vec_50 = np.sum(vecs, axis=0) / len(vecs)
+        # Project and wrap
+        vec_hrr = np.dot(vec_50, self.bpemb_proj)
+        # scale so variance covers [-pi, pi] reasonably
+        vec_hrr = (vec_hrr * np.pi) % (2 * np.pi)
+        return vec_hrr
+
 
     def bind(self, a: np.ndarray, b: np.ndarray, out: Optional[np.ndarray] = None) -> np.ndarray:
         if out is None:
@@ -88,12 +122,19 @@ class FHRREngine:
                   prototype: Optional[np.ndarray] = None, noise: float = 0.20) -> np.ndarray:
         if name in self.token_names:
             return self.token_phases[self.token_names.index(name)]
-        if prototype is None:
-            prototype = self.alloc()
-        vec = (prototype + np.random.normal(0, noise, self.dim)) % (2 * np.pi)
-        if polarity != 0 and category in self.poles:
-            pole_vec = self.poles[category]['positive'] if polarity > 0 else self.poles[category]['negative']
-            vec = (vec + pole_vec * 0.4) % (2 * np.pi)
+
+        bpemb_vec = self._get_bpemb_vector(name)
+
+        if bpemb_vec is not None:
+            vec = bpemb_vec
+        else:
+            if prototype is None:
+                prototype = self.alloc()
+            vec = (prototype + np.random.normal(0, noise, self.dim)) % (2 * np.pi)
+            if polarity != 0 and category in self.poles:
+                pole_vec = self.poles[category]['positive'] if polarity > 0 else self.poles[category]['negative']
+                vec = (vec + pole_vec * 0.4) % (2 * np.pi)
+
         idx = len(self.token_names)
         self.token_names.append(name)
         self.token_phases.append(vec)
