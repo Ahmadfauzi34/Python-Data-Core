@@ -15,6 +15,7 @@ vocab:
     - benteng
     - buku
     - papan
+    - kapur
     benda_cair:
     - air
     - minyak
@@ -257,6 +258,14 @@ vocab:
     - walaupun
     - jika
     - kecuali
+    tempat:
+    - kebun
+    - rumah_sakit
+    - dapur
+    makanan:
+    - nasi
+    kumpulan:
+    - pasukan
   poles:
     ukuran:
       positive:
