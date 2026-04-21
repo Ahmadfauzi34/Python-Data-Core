@@ -343,7 +343,7 @@ class FHRREvaluator:
 
 class FHRRResearchRunner:
     def __init__(self, dim: int = 4096):
-        self.engine = FHRREngine(dim=dim)
+        self.engine = FHRREngine(dim=dim, use_bpemb=True)
         self.dataset: Optional[Dict[str, Any]] = None
         self.trainer: Optional[FHRRResearchTrainer] = None
         self.evaluator: Optional[FHRREvaluator] = None
