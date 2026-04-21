@@ -2,7 +2,7 @@
 Loader dataset FHRR.
 
 Pakai:
-    from data.loader import load_dataset, list_datasets
+    from fhrr_project.data.loader import load_dataset, list_datasets
     ds = load_dataset("default")          # by name (cari di datasets/)
     ds = load_dataset("/abs/path/x.yaml") # by path
 """
@@ -12,7 +12,7 @@ from typing import Any
 
 import yaml
 
-from data.schema import assert_valid
+from fhrr_project.data.schema import assert_valid
 
 _DATASETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "datasets")
 

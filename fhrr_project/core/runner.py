@@ -4,8 +4,8 @@
 import numpy as np
 from typing import Dict, List, Tuple, Optional, Any
 from dataclasses import dataclass
-from core.engine import FHRREngine
-from core.roles import Role, TripleKey, QUESTION_TO_ROLE
+from fhrr_project.core.engine import FHRREngine
+from fhrr_project.core.roles import Role, TripleKey, QUESTION_TO_ROLE
 
 @dataclass
 class TrainingResult:

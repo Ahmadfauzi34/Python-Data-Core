@@ -7,8 +7,8 @@ from dataclasses import dataclass
 import time
 from collections import Counter
 
-from core.roles import Role, TripleKey
-from interface.text_normalizer import (
+from fhrr_project.core.roles import Role, TripleKey
+from fhrr_project.interface.text_normalizer import (
     normalize, find_question_prefix, find_mentions, build_variant_index,
 )
 

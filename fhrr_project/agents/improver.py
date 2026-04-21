@@ -6,7 +6,7 @@ from collections import Counter
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 import time
-from memory.knowledge_graph import KGTriple
+from fhrr_project.memory.knowledge_graph import KGTriple
 
 @dataclass
 class AssessmentReport:

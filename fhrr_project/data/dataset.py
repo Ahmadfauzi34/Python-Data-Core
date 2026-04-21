@@ -7,9 +7,9 @@ Modul ini hanya re-export `fhrr_research_dataset` agar kode lama tetap jalan.
 Untuk dataset baru, **jangan tambah dict di sini** — buat file
 `data/datasets/<nama>.yaml` lalu panggil:
 
-    from data.loader import load_dataset
+    from fhrr_project.data.loader import load_dataset
     ds = load_dataset("<nama>")
 """
-from data.loader import load_dataset
+from fhrr_project.data.loader import load_dataset
 
 fhrr_research_dataset = load_dataset("default", strict=False)

@@ -7,8 +7,8 @@ di layer data, bukan di fasad re-export.
 from __future__ import annotations
 from typing import Any
 
-from core.roles import Role, get_binding
-from memory.knowledge_graph import KnowledgeGraphIngestor, KGTriple
+from fhrr_project.core.roles import Role, get_binding
+from fhrr_project.memory.knowledge_graph import KnowledgeGraphIngestor, KGTriple
 
 # Role yang konsumsi-nya khusus (jadi predicate sendiri, bukan masuk metadata extra).
 _CORE_ROLES = {

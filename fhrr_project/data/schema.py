@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 
-from core.roles import ALL_ROLES as KNOWN_ROLES  # noqa: E402,F401
+from fhrr_project.core.roles import ALL_ROLES as KNOWN_ROLES  # noqa: E402,F401
 
 
 @dataclass
