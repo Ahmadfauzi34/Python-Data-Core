@@ -1,27 +1,17 @@
-# Workspace
+# FHRR Chat
 
 ## Overview
+Streamlit chat UI di atas sistem FHRR (Fractional Holographic Reduced Representation) yang memakai HRR + Knowledge Graph + topology untuk menjawab pertanyaan natural language.
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+## Struktur
+- `main.py` — Streamlit chat UI (entry point)
+- `fhrr_core.py` — fasad/re-export semua komponen FHRR + helper `ingest_dataset_to_kg`
+- `fhrr_project/` — paket inti
+  - `core/` — `engine.py`, `runner.py`, `topology.py`
+  - `data/dataset.py` — dataset penelitian
+  - `interface/query_api.py` — `FHRRQueryInterface`
+  - `memory/` — knowledge graph + open vocabulary
+  - `agents/` — discoverer & self-improvement
 
-## Stack
-
-- **Monorepo tool**: pnpm workspaces
-- **Node.js version**: 24
-- **Package manager**: pnpm
-- **TypeScript version**: 5.9
-- **API framework**: Express 5
-- **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
-
-## Key Commands
-
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- `pnpm --filter @workspace/api-server run dev` — run API server locally
-
-See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+## Run
+Workflow `Start application`: `streamlit run main.py --server.port 5000 ...`
