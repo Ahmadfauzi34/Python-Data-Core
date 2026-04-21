@@ -6,7 +6,7 @@ import numpy as np
 from fhrr_core import (
     FHRRResearchRunner, fhrr_research_dataset, extend_engine_open_vocab,
     KnowledgeGraphIngestor, SelfSupervisedDiscovery, FHRRTopologicalLayer,
-    SelfImprovementEngine, FHRRQueryInterface
+    SelfImprovementEngine, FHRRQueryInterface, ingest_dataset_to_kg,
 )
 
 # Gunakan cache agar AI tidak di-rebuild dari nol setiap kali user mengetik
@@ -18,9 +18,9 @@ def init_fhrr_system():
     
     open_vocab = extend_engine_open_vocab(runner.engine)
     kg = KnowledgeGraphIngestor(runner.engine, open_vocab)
-    
-    # Injeksi contoh KG jika ada
-    # kg.ingest_batch(get_sample_kg_dataset()) 
+
+    # Auto-ingest semua observation dataset jadi triple KG
+    ingest_dataset_to_kg(kg, fhrr_research_dataset)
     
     discoverer = SelfSupervisedDiscovery(runner.engine, window_size=3)
     topo = FHRRTopologicalLayer(runner.engine)
