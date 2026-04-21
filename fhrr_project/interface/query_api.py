@@ -8,6 +8,9 @@ import time
 from collections import Counter
 
 from core.roles import Role, TripleKey
+from interface.text_normalizer import (
+    normalize, find_question_prefix, find_mentions, build_variant_index,
+)
 
 @dataclass
 class QueryResult:
@@ -54,27 +57,43 @@ class FHRRQueryInterface:
         self.improver = improver
         return self
 
+    def _get_variant_index(self) -> dict[str, str]:
+        """Cache index varian->stem. Re-build kalau vocab berubah."""
+        cached = getattr(self, "_variant_index_cache", None)
+        cached_size = getattr(self, "_variant_index_size", -1)
+        if cached is None or cached_size != len(self.engine.token_names):
+            cached = build_variant_index(self.engine.token_names)
+            self._variant_index_cache = cached
+            self._variant_index_size = len(self.engine.token_names)
+        return cached
+
     def parse_query(self, query: str) -> Dict[str, Any]:
-        q_lower = query.lower().strip()
-        qtype = 'unknown'
-        strategy = 'fallback'
-        target_role = None
+        # 1) Tentukan tipe pertanyaan via prefix tanya (longest-match, normalized).
+        all_prefixes: list[tuple[str, str]] = [
+            (prefix, qkey) for qkey, qinfo in self.qpatterns.items() for prefix in qinfo['prefixes']
+        ]
+        # Sort longest-first agar "siapakah" menang dari "siapa".
+        all_prefixes.sort(key=lambda x: -len(x[0]))
+        matched = find_question_prefix(query, [p for p, _ in all_prefixes])
 
-        for qkey, qinfo in self.qpatterns.items():
-            for prefix in qinfo['prefixes']:
-                if q_lower.startswith(prefix):
-                    qtype = qkey
-                    strategy = qinfo['strategy']
-                    target_role = qinfo['target_role']
-                    break
-            if qtype != 'unknown':
-                break
+        qtype, strategy, target_role = 'unknown', 'fallback', None
+        if matched is not None:
+            qkey = next(k for p, k in all_prefixes if p == matched)
+            qtype = qkey
+            strategy = self.qpatterns[qkey]['strategy']
+            target_role = self.qpatterns[qkey]['target_role']
 
-        mentioned = [tok for tok in self.engine.token_names if tok in q_lower]
-        predicates = [tok for tok in mentioned if 'aksi' in self.engine.token_categories[self.engine.token_names.index(tok)]]
+        # 2) Ekstrak entity & predikat dengan word-boundary + varian verba.
+        idx = self._get_variant_index()
+        mentioned = find_mentions(query, idx)
+        predicates = [
+            tok for tok in mentioned
+            if 'aksi' in self.engine.token_categories[self.engine.token_names.index(tok)]
+        ]
 
         return {
-            'raw': query, 'qtype': qtype, 'strategy': strategy,
+            'raw': query, 'normalized': normalize(query),
+            'qtype': qtype, 'strategy': strategy,
             'target_role': target_role, 'mentioned_entities': mentioned,
             'mentioned_predicates': predicates, 'parsed_at': time.time()
         }

@@ -14,7 +14,9 @@ Streamlit chat UI di atas sistem FHRR (Fractional Holographic Reduced Representa
     - `loader.py` — `load_dataset(name|path)` + `list_datasets()`
     - `ingest.py` — `ingest_dataset_to_kg(kg, ds)` (observation → triple KG)
     - `dataset.py` — shim back-compat (load YAML default)
-  - `interface/query_api.py` — `FHRRQueryInterface`
+  - `interface/`
+    - `query_api.py` — `FHRRQueryInterface`
+    - `text_normalizer.py` — normalisasi teks Indonesia: lowercase, strip `-kah/-lah/-pun`, varian verba `me-/di-/ter-/ber-` + nasal mutation, match by word-boundary
   - `memory/` — knowledge graph + open vocabulary
   - `agents/` — discoverer & self-improvement
 
@@ -27,4 +29,4 @@ Streamlit chat UI di atas sistem FHRR (Fractional Holographic Reduced Representa
 Workflow `Start application`: `streamlit run main.py --server.port 5000 ...`
 
 ## Test
-`python -m unittest tests.test_smoke -v` — smoke test: load dataset, validator, ingest, end-to-end query.
+`python -m unittest discover tests -v` — smoke test (dataset, validator, ingest, end-to-end query) + unit test parser/normalizer.
