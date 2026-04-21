@@ -1,85 +1,112 @@
 import streamlit as st
-import numpy as np
 
-# Import semua sistem dari file core Anda
-# Pastikan nama-nama class ini sesuai dengan yang ada di fhrr_core.py
 from fhrr_core import (
-    FHRRResearchRunner, fhrr_research_dataset, extend_engine_open_vocab,
+    FHRRResearchRunner, extend_engine_open_vocab,
     KnowledgeGraphIngestor, SelfSupervisedDiscovery, FHRRTopologicalLayer,
-    SelfImprovementEngine, FHRRQueryInterface, ingest_dataset_to_kg,
+    SelfImprovementEngine, FHRRQueryInterface,
+    load_dataset, list_datasets, ingest_dataset_to_kg, validate_dataset,
 )
 
-# Gunakan cache agar AI tidak di-rebuild dari nol setiap kali user mengetik
-@st.cache_resource
-def init_fhrr_system():
-    # Setup sistem persis seperti di Cell 18
-    runner = FHRRResearchRunner(dim=4096)
-    runner.load_dataset(fhrr_research_dataset)
-    
+st.set_page_config(page_title="FHRR Chat", page_icon="🧠", layout="wide")
+
+
+@st.cache_resource(show_spinner="Inisialisasi sistem FHRR...")
+def init_fhrr_system(dataset_name: str, dim: int = 4096):
+    dataset = load_dataset(dataset_name, strict=False)
+
+    runner = FHRRResearchRunner(dim=dim)
+    runner.load_dataset(dataset)
+
     open_vocab = extend_engine_open_vocab(runner.engine)
     kg = KnowledgeGraphIngestor(runner.engine, open_vocab)
+    n_triples = ingest_dataset_to_kg(kg, dataset)
 
-    # Auto-ingest semua observation dataset jadi triple KG
-    ingest_dataset_to_kg(kg, fhrr_research_dataset)
-    
     discoverer = SelfSupervisedDiscovery(runner.engine, window_size=3)
     topo = FHRRTopologicalLayer(runner.engine)
     runner.attach_topology(topo)
     improver = SelfImprovementEngine(runner.engine, topo, discoverer, kg)
-    
+
     api = FHRRQueryInterface(runner)
-    api.attach_kg(kg)
-    api.attach_discoverer(discoverer)
-    api.attach_improver(improver)
-    
-    return api
+    api.attach_kg(kg).attach_discoverer(discoverer).attach_improver(improver)
+    return api, dataset, n_triples
 
-# Muat sistem AI
-api = init_fhrr_system()
 
-# Tampilan UI
+# -----------------------------------------------------------------------------
+# Sidebar
+# -----------------------------------------------------------------------------
+with st.sidebar:
+    st.title("⚙️ FHRR")
+
+    available = list_datasets()
+    if not available:
+        st.error("Tidak ada dataset di `fhrr_project/data/datasets/`.")
+        st.stop()
+    dataset_name = st.selectbox("Dataset", available, index=0)
+
+    if st.button("🔄 Re-init", use_container_width=True):
+        st.cache_resource.clear()
+        st.session_state.pop("messages", None)
+        st.rerun()
+
+    if st.button("🗑️ Bersihkan chat", use_container_width=True):
+        st.session_state["messages"] = []
+        st.rerun()
+
+    st.divider()
+    if st.toggle("Validasi dataset (debug)", value=False):
+        ds_preview = load_dataset(dataset_name, strict=False)
+        issues = validate_dataset(ds_preview)
+        st.caption(f"{sum(1 for i in issues if i.severity == 'error')} error · {sum(1 for i in issues if i.severity == 'warning')} warning")
+        with st.expander("Detail", expanded=False):
+            for i in issues[:50]:
+                st.write(str(i))
+
+
+# -----------------------------------------------------------------------------
+# Boot
+# -----------------------------------------------------------------------------
+api, dataset, n_triples = init_fhrr_system(dataset_name)
+
+
+with st.sidebar:
+    st.divider()
+    st.subheader("📊 Stats")
+    st.metric("Observation", len(dataset.get("observations", [])))
+    st.metric("QA pairs", len(dataset.get("qa_pairs", [])))
+    st.metric("KG triples", n_triples)
+
+
+# -----------------------------------------------------------------------------
+# UI
+# -----------------------------------------------------------------------------
 st.title("🧠 Cognitive AI - FHRR Chat")
-st.caption("Berbasis Vector Symbolic Architecture (VSA) & Topological Reasoning")
+st.caption(f"Dataset aktif: **{dataset_name}** · Berbasis Vector Symbolic Architecture (VSA) & Topological Reasoning")
 
-# Setup memori riwayat chat agar tidak hilang
 if "messages" not in st.session_state:
-    st.session_state.messages = []
-    # Pesan sambutan
-    st.session_state.messages.append({
-        "role": "assistant", 
-        "content": "Sistem siap. Tanyakan sesuatu berdasarkan dataset saya (contoh: 'siapa yang makan mangga?')"
-    })
+    st.session_state.messages = [{
+        "role": "assistant",
+        "content": "Sistem siap. Tanyakan sesuatu berdasarkan dataset (contoh: *siapa yang makan mangga?*)",
+    }]
 
-# Tampilkan riwayat chat di layar
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# Kolom input text di bawah layar
-if prompt := st.chat_input("Ketik pertanyaan Anda di sini..."):
-    
-    # 1. Tampilkan pertanyaan user
+if prompt := st.chat_input("Ketik pertanyaan Anda..."):
     with st.chat_message("user"):
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # 2. Proses pertanyaan ke dalam FHRR Query Interface (Cell 17)
     with st.spinner("Memproses vektor fasa..."):
         result = api.ask(prompt, explain=False)
-    
-    # 3. Format balasan dari sistem
-    response_text = f"**Jawaban:** {result.answer}\n\n"
-    response_text += f"*(Keyakinan: {result.confidence:.1%} | Mekanisme: {result.mechanism})*"
-    
-    if result.reasoning:
-        response_text += f"\n\n**Alasan:** {result.reasoning}"
-        
-    if result.suggested_followup:
-        response_text += "\n\n**Coba tanyakan juga:**\n"
-        for fw in result.suggested_followup:
-            response_text += f"- {fw}\n"
 
-    # 4. Tampilkan balasan AI
+    body = f"**Jawaban:** {result.answer}\n\n"
+    body += f"*(Keyakinan: {result.confidence:.1%} | Mekanisme: {result.mechanism})*"
+    if result.reasoning:
+        body += f"\n\n**Alasan:** {result.reasoning}"
+    if result.suggested_followup:
+        body += "\n\n**Coba tanyakan juga:**\n" + "\n".join(f"- {s}" for s in result.suggested_followup)
+
     with st.chat_message("assistant"):
-        st.markdown(response_text)
-    st.session_state.messages.append({"role": "assistant", "content": response_text})
+        st.markdown(body)
+    st.session_state.messages.append({"role": "assistant", "content": body})

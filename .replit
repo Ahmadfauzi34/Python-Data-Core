@@ -58,4 +58,4 @@ externalPort = 80
 
 [nix]
 channel = "stable-25_05"
-packages = ["libxcrypt", "pkg-config", "xsimd"]
+packages = ["libxcrypt", "libyaml", "pkg-config", "xsimd"]
