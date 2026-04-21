@@ -17,6 +17,7 @@ from core.topology import FHRRTopologicalLayer
 from data.dataset import fhrr_research_dataset
 from interface.query_api import FHRRQueryInterface
 from memory.knowledge_graph import KnowledgeGraphIngestor
+from memory.open_vocab import extend_engine_open_vocab
 from agents.discoverer import SelfSupervisedDiscovery
 from agents.improver import SelfImprovementEngine
 
@@ -43,7 +44,8 @@ def boot_system(dim: int = 4096, run_training: bool = True):
     topo = FHRRTopologicalLayer(runner.engine)
     runner.attach_topology(topo)
 
-    kg = KnowledgeGraphIngestor(runner.engine)
+    open_vocab = extend_engine_open_vocab(runner.engine)
+    kg = KnowledgeGraphIngestor(runner.engine, open_vocab)
     runner.attach_kg(kg)
 
     discoverer = SelfSupervisedDiscovery(runner.engine)
