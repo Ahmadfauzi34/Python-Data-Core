@@ -320,7 +320,11 @@ class FHRREngine:
         for role in set(decomp1.keys()) & set(decomp2.keys()):
             f1, c1 = decomp1[role]
             f2, c2 = decomp2[role]
-            sim = self.sim(self.get_token(f1), self.get_token(f2))
+            v1 = self.get_token(f1)
+            v2 = self.get_token(f2)
+            if v1 is None or v2 is None:
+                continue
+            sim = self.sim(v1, v2)
             if sim < threshold:
                 conflicts.append({
                     'role': role, 'filler1': f1, 'filler2': f2,
