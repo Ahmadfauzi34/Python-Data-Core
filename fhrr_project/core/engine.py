@@ -25,8 +25,10 @@ class FHRREngine:
         self.token_phases: List[np.ndarray] = []
         self.token_categories: List[str] = []
         self.token_polarities: List[int] = []
+        self._token_name_to_idx: Dict[str, int] = {}
         self.role_names: List[str] = []
         self.role_phases: List[np.ndarray] = []
+        self._role_name_to_idx: Dict[str, int] = {}
         self.poles: Dict[str, Dict[str, np.ndarray]] = {}
         self.pole_categories: set = set()
         self.transforms: Dict[str, Dict[str, Any]] = {}
@@ -120,8 +122,8 @@ class FHRREngine:
 
     def add_token(self, name: str, category: str, polarity: int = 0,
                   prototype: Optional[np.ndarray] = None, noise: float = 0.20) -> np.ndarray:
-        if name in self.token_names:
-            return self.token_phases[self.token_names.index(name)]
+        if name in self._token_name_to_idx:
+            return self.token_phases[self._token_name_to_idx[name]]
 
         bpemb_vec = self._get_bpemb_vector(name)
 
@@ -139,6 +141,7 @@ class FHRREngine:
         self.token_names.append(name)
         self.token_phases.append(vec)
         self.token_categories.append(category)
+        self._token_name_to_idx[name] = idx
         self.token_polarities.append(polarity)
         for t in range(self.n_tables):
             bin_idx = self._lsh_hash(vec, t)
@@ -148,26 +151,26 @@ class FHRREngine:
         return vec
 
     def get_token(self, name: str) -> Optional[np.ndarray]:
-        try:
-            idx = self.token_names.index(name)
+        idx = self._token_name_to_idx.get(name)
+        if idx is not None:
             return self.token_phases[idx]
-        except ValueError:
-            return None
+        return None
 
     def add_role(self, name: str) -> np.ndarray:
-        if name in self.role_names:
-            return self.role_phases[self.role_names.index(name)]
+        if name in self._role_name_to_idx:
+            return self.role_phases[self._role_name_to_idx[name]]
         vec = self.alloc()
+        idx = len(self.role_names)
         self.role_names.append(name)
         self.role_phases.append(vec)
+        self._role_name_to_idx[name] = idx
         return vec
 
     def get_role(self, name: str) -> Optional[np.ndarray]:
-        try:
-            idx = self.role_names.index(name)
+        idx = self._role_name_to_idx.get(name)
+        if idx is not None:
             return self.role_phases[idx]
-        except ValueError:
-            return None
+        return None
 
     def encode(self, bindings: Dict[str, str]) -> Optional[np.ndarray]:
         bound_vecs = []
@@ -183,18 +186,37 @@ class FHRREngine:
         return self.bundle(bound_vecs)
 
     def decode(self, struct_vec: np.ndarray, threshold: float = 0.40) -> Dict[str, Tuple[str, float]]:
+        if not self.role_names or not self.token_names:
+            return {}
+
+        # Vectorized decoding for massive speedup over O(M * N) python loops
+        # 1. Unbind struct with all roles via broadcasting
+        # struct_vec: (dim,), role_phases: (M, dim) -> unbound_mat: (M, dim)
+        roles_mat = np.array(self.role_phases)
+        unbound_mat = (struct_vec - roles_mat) % (2 * np.pi)
+
+        # 2. Extract all token phases
+        tokens_mat = np.array(self.token_phases) # (N, dim)
+
+        # 3. Vectorized cosine similarity using cos(a-b) = cos(a)cos(b) + sin(a)sin(b)
+        C_u = np.cos(unbound_mat) # (M, dim)
+        S_u = np.sin(unbound_mat) # (M, dim)
+        C_t = np.cos(tokens_mat)  # (N, dim)
+        S_t = np.sin(tokens_mat)  # (N, dim)
+
+        # sim_mat shape: (M, N)
+        sim_mat = (C_u @ C_t.T + S_u @ S_t.T) / self.dim
+
         decomposition = {}
-        for role_name, role_vec in zip(self.role_names, self.role_phases):
-            unbound = self.unbind(struct_vec, role_vec, out=self._ws.copy())
-            best_idx = -1
-            best_sim = -1.0
-            for idx, vec in enumerate(self.token_phases):
-                sim = self.sim(unbound, vec)
-                if sim > best_sim:
-                    best_sim = sim
-                    best_idx = idx
-            if best_sim > threshold:
-                decomposition[role_name] = (self.token_names[best_idx], best_sim)
+        # Max along the tokens axis for each role
+        best_indices = np.argmax(sim_mat, axis=1)
+        best_sims = np.max(sim_mat, axis=1)
+
+        for m, role_name in enumerate(self.role_names):
+            sim = float(best_sims[m])
+            if sim > threshold:
+                decomposition[role_name] = (self.token_names[best_indices[m]], sim)
+
         return decomposition
 
     def cleanup(self, query_vec: np.ndarray, threshold: float = 0.45,
