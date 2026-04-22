@@ -7,7 +7,6 @@ Tujuan:
 
 Nilai string sengaja sama dengan sebelumnya supaya YAML dataset tidak perlu diubah.
 """
-from __future__ import annotations
 from typing import Final
 
 
