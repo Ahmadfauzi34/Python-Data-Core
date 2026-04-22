@@ -8,6 +8,7 @@ Pakai:
 """
 from __future__ import annotations
 import os
+from pathlib import Path
 from typing import Any
 
 import yaml
@@ -29,14 +30,32 @@ def list_datasets() -> list[str]:
 
 
 def _resolve_path(name_or_path: str) -> str:
-    if os.path.isabs(name_or_path) or os.sep in name_or_path:
-        return name_or_path
+    # Ensure base directory is absolute
+    base_dir = Path(_DATASETS_DIR).resolve()
+
+    # Try matching by name first
     for ext in (".yaml", ".yml"):
-        cand = os.path.join(_DATASETS_DIR, name_or_path + ext)
-        if os.path.isfile(cand):
-            return cand
+        cand = base_dir / (name_or_path + ext)
+        try:
+            if cand.resolve().is_file() and cand.resolve().is_relative_to(base_dir):
+                return str(cand.resolve())
+        except (OSError, RuntimeError, ValueError):
+            continue
+
+    # Try treating as a direct path
+    cand = Path(name_or_path)
+    if not cand.is_absolute():
+        cand = base_dir / cand
+
+    try:
+        resolved = cand.resolve()
+        if resolved.is_file() and resolved.is_relative_to(base_dir):
+            return str(resolved)
+    except (OSError, RuntimeError, ValueError):
+        pass
+
     raise FileNotFoundError(
-        f"Dataset {name_or_path!r} tidak ditemukan. Yang tersedia: {list_datasets()}"
+        f"Dataset {name_or_path!r} tidak ditemukan atau akses dilarang. Yang tersedia: {list_datasets()}"
     )
 
 
