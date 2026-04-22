@@ -173,17 +173,23 @@ class FHRREngine:
         return None
 
     def encode(self, bindings: Dict[str, str]) -> Optional[np.ndarray]:
-        bound_vecs = []
+        self._cbuf.fill(0)
+        count = 0
         for role_name, token_name in bindings.items():
             role_vec = self.get_role(role_name)
             token_vec = self.get_token(token_name)
             if role_vec is None or token_vec is None:
                 continue
-            bound = self.bind(role_vec, token_vec, out=self._ws2.copy())
-            bound_vecs.append(bound)
-        if not bound_vecs:
+            # Zero-allocation Phase FHRR binding: accumulation inline.
+            # np.exp handles the modulo boundary natively on the complex plane.
+            self._cbuf += np.exp(1j * (role_vec + token_vec))
+            count += 1
+
+        if count == 0:
             return None
-        return self.bundle(bound_vecs)
+
+        # Extract phase as the final FHRR bundled structure
+        return np.angle(self._cbuf) % (2 * np.pi)
 
     def decode(self, struct_vec: np.ndarray, threshold: float = 0.40) -> Dict[str, Tuple[str, float]]:
         if not self.role_names or not self.token_names:
