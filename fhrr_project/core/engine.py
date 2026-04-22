@@ -25,8 +25,10 @@ class FHRREngine:
         self.token_phases: List[np.ndarray] = []
         self.token_categories: List[str] = []
         self.token_polarities: List[int] = []
+        self._token_name_to_idx: Dict[str, int] = {}
         self.role_names: List[str] = []
         self.role_phases: List[np.ndarray] = []
+        self._role_name_to_idx: Dict[str, int] = {}
         self.poles: Dict[str, Dict[str, np.ndarray]] = {}
         self.pole_categories: set = set()
         self.transforms: Dict[str, Dict[str, Any]] = {}
@@ -120,8 +122,8 @@ class FHRREngine:
 
     def add_token(self, name: str, category: str, polarity: int = 0,
                   prototype: Optional[np.ndarray] = None, noise: float = 0.20) -> np.ndarray:
-        if name in self.token_names:
-            return self.token_phases[self.token_names.index(name)]
+        if name in self._token_name_to_idx:
+            return self.token_phases[self._token_name_to_idx[name]]
 
         bpemb_vec = self._get_bpemb_vector(name)
 
@@ -139,6 +141,7 @@ class FHRREngine:
         self.token_names.append(name)
         self.token_phases.append(vec)
         self.token_categories.append(category)
+        self._token_name_to_idx[name] = idx
         self.token_polarities.append(polarity)
         for t in range(self.n_tables):
             bin_idx = self._lsh_hash(vec, t)
@@ -148,26 +151,26 @@ class FHRREngine:
         return vec
 
     def get_token(self, name: str) -> Optional[np.ndarray]:
-        try:
-            idx = self.token_names.index(name)
+        idx = self._token_name_to_idx.get(name)
+        if idx is not None:
             return self.token_phases[idx]
-        except ValueError:
-            return None
+        return None
 
     def add_role(self, name: str) -> np.ndarray:
-        if name in self.role_names:
-            return self.role_phases[self.role_names.index(name)]
+        if name in self._role_name_to_idx:
+            return self.role_phases[self._role_name_to_idx[name]]
         vec = self.alloc()
+        idx = len(self.role_names)
         self.role_names.append(name)
         self.role_phases.append(vec)
+        self._role_name_to_idx[name] = idx
         return vec
 
     def get_role(self, name: str) -> Optional[np.ndarray]:
-        try:
-            idx = self.role_names.index(name)
+        idx = self._role_name_to_idx.get(name)
+        if idx is not None:
             return self.role_phases[idx]
-        except ValueError:
-            return None
+        return None
 
     def encode(self, bindings: Dict[str, str]) -> Optional[np.ndarray]:
         bound_vecs = []

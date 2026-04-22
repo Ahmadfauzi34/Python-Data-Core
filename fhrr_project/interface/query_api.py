@@ -88,7 +88,7 @@ class FHRRQueryInterface:
         mentioned = find_mentions(query, idx)
         predicates = [
             tok for tok in mentioned
-            if 'aksi' in self.engine.token_categories[self.engine.token_names.index(tok)]
+            if 'aksi' in self.engine.token_categories[self.engine._token_name_to_idx[tok]]
         ]
 
         return {
@@ -117,7 +117,7 @@ class FHRRQueryInterface:
         bindings = {}
 
         for ent in entities:
-            cat = self.engine.token_categories[self.engine.token_names.index(ent)]
+            cat = self.engine.token_categories[self.engine._token_name_to_idx[ent]]
             bindings[Role.PASIEN] = ent
         for pred in predicates:
             bindings[Role.PREDIKAT] = pred
@@ -159,7 +159,7 @@ class FHRRQueryInterface:
         bindings = {}
 
         for ent in entities:
-            cat = self.engine.token_categories[self.engine.token_names.index(ent)]
+            cat = self.engine.token_categories[self.engine._token_name_to_idx[ent]]
             if 'manusia' in cat or 'hewan' in cat:
                 bindings[Role.AGEN] = ent
         for pred in predicates:
@@ -205,7 +205,7 @@ class FHRRQueryInterface:
         predicates = parsed['mentioned_predicates']
         bindings = {}
         for ent in entities:
-            cat = self.engine.token_categories[self.engine.token_names.index(ent)]
+            cat = self.engine.token_categories[self.engine._token_name_to_idx[ent]]
             if 'manusia' in cat: bindings[Role.AGEN] = ent
             elif 'aksi' in cat: bindings[Role.PREDIKAT] = ent
             else: bindings[Role.PASIEN] = ent
@@ -238,10 +238,10 @@ class FHRRQueryInterface:
         tgt_cat = None
         if len(entities) > 1:
             tgt = entities[1]
-            tgt_cat = self.engine.token_categories[self.engine.token_names.index(tgt)]
+            tgt_cat = self.engine.token_categories[self.engine._token_name_to_idx[tgt]]
 
         if not tgt_cat: return QueryResult(raw, "Kategori target tidak jelas", 0.0, 'failed', '', [])
-        src_cat = self.engine.token_categories[self.engine.token_names.index(src)]
+        src_cat = self.engine.token_categories[self.engine._token_name_to_idx[src]]
 
         if self.runner.topo:
             result, sim = self.runner.topo.analogy_via_fiber_transport(src, src_cat, tgt_cat)
@@ -271,7 +271,7 @@ class FHRRQueryInterface:
         predicates = parsed['mentioned_predicates']
         bindings = {}
         for ent in entities:
-            cat = self.engine.token_categories[self.engine.token_names.index(ent)]
+            cat = self.engine.token_categories[self.engine._token_name_to_idx[ent]]
             if 'manusia' in cat or 'hewan' in cat: bindings[Role.AGEN] = ent
         for pred in predicates: bindings[Role.PREDIKAT] = pred
 

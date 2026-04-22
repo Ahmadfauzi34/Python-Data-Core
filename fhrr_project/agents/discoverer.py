@@ -151,8 +151,8 @@ class SelfSupervisedDiscovery:
                 continue
 
             sim = self.engine.sim(v1, v2)
-            cat1 = self.engine.token_categories[self.engine.token_names.index(t1)]
-            cat2 = self.engine.token_categories[self.engine.token_names.index(t2)]
+            cat1 = self.engine.token_categories[self.engine._token_name_to_idx[t1]]
+            cat2 = self.engine.token_categories[self.engine._token_name_to_idx[t2]]
 
             if 0.15 < sim < 0.65 and cat1 != cat2:
                 rel_name = f"rel_{t1}_to_{t2}"

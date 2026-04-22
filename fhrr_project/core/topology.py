@@ -301,7 +301,7 @@ class FiberBundleVSA:
     def section(self, category: str, token_name: Optional[str] = None) -> np.ndarray:
         if token_name is None:
             return self.engine.bundle(list(self.fibers[category]))
-        idx = self.engine.token_names.index(token_name)
+        idx = self.engine._token_name_to_idx[token_name]
         return self.engine.token_phases[idx]
 
 
@@ -541,7 +541,7 @@ class FHRRTopologicalLayer:
         decoded = self.engine.decode(query_vec, threshold=0.35)
         cat_compat = {}
         for role, (tok, c) in decoded.items():
-            cat = self.engine.token_categories[self.engine.token_names.index(tok)]
+            cat = self.engine.token_categories[self.engine._token_name_to_idx[tok]]
             if cat in self.sheaf.stalks:
                 center = self.sheaf.stalks[cat].center
                 cat_compat[role] = float(self.engine.sim(query_vec, center))
@@ -562,8 +562,8 @@ class FHRRTopologicalLayer:
         for role in set(dec1.keys()) & set(dec2.keys()):
             t1, _ = dec1[role]
             t2, _ = dec2[role]
-            c1 = self.engine.token_categories[self.engine.token_names.index(t1)]
-            c2 = self.engine.token_categories[self.engine.token_names.index(t2)]
+            c1 = self.engine.token_categories[self.engine._token_name_to_idx[t1]]
+            c2 = self.engine.token_categories[self.engine._token_name_to_idx[t2]]
             if c1 != c2:
                 sheaf_conflicts.append({
                     'role': role, 'token1': t1, 'cat1': c1,
