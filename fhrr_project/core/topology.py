@@ -477,12 +477,24 @@ class FHRRTopologicalLayer:
         n = len(self.engine.token_names)
         if self._dist_matrix is not None and self._cached_tokens == n:
             return self._dist_matrix
-        dist = np.zeros((n, n))
-        for i in range(n):
-            for j in range(i + 1, n):
-                d = 1.0 - self.engine.sim(self.engine.token_phases[i], self.engine.token_phases[j])
-                dist[i, j] = d
-                dist[j, i] = d
+
+        if n == 0:
+            dist = np.zeros((0, 0))
+        else:
+            # Vectorized O(N^2) similarity computation using trig identity:
+            # cos(a-b) = cos(a)cos(b) + sin(a)sin(b)
+            phases = np.array(self.engine.token_phases)
+            C = np.cos(phases)
+            S = np.sin(phases)
+            # engine.sim formula is float(np.mean(np.cos(a - b)))
+            sim_mat = (C @ C.T + S @ S.T) / self.engine.dim
+            dist = 1.0 - sim_mat
+            # Ensure diagonal is exactly 0 and matrix is symmetric (to avoid precision issues)
+            np.fill_diagonal(dist, 0.0)
+            dist = (dist + dist.T) / 2.0
+            # Clip very small negative values due to floating point inaccuracies
+            dist = np.clip(dist, 0.0, None)
+
         self._dist_matrix = dist
         self._cached_tokens = n
         return dist
