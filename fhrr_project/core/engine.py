@@ -186,18 +186,37 @@ class FHRREngine:
         return self.bundle(bound_vecs)
 
     def decode(self, struct_vec: np.ndarray, threshold: float = 0.40) -> Dict[str, Tuple[str, float]]:
+        if not self.role_names or not self.token_names:
+            return {}
+
+        # Vectorized decoding for massive speedup over O(M * N) python loops
+        # 1. Unbind struct with all roles via broadcasting
+        # struct_vec: (dim,), role_phases: (M, dim) -> unbound_mat: (M, dim)
+        roles_mat = np.array(self.role_phases)
+        unbound_mat = (struct_vec - roles_mat) % (2 * np.pi)
+
+        # 2. Extract all token phases
+        tokens_mat = np.array(self.token_phases) # (N, dim)
+
+        # 3. Vectorized cosine similarity using cos(a-b) = cos(a)cos(b) + sin(a)sin(b)
+        C_u = np.cos(unbound_mat) # (M, dim)
+        S_u = np.sin(unbound_mat) # (M, dim)
+        C_t = np.cos(tokens_mat)  # (N, dim)
+        S_t = np.sin(tokens_mat)  # (N, dim)
+
+        # sim_mat shape: (M, N)
+        sim_mat = (C_u @ C_t.T + S_u @ S_t.T) / self.dim
+
         decomposition = {}
-        for role_name, role_vec in zip(self.role_names, self.role_phases):
-            unbound = self.unbind(struct_vec, role_vec, out=self._ws.copy())
-            best_idx = -1
-            best_sim = -1.0
-            for idx, vec in enumerate(self.token_phases):
-                sim = self.sim(unbound, vec)
-                if sim > best_sim:
-                    best_sim = sim
-                    best_idx = idx
-            if best_sim > threshold:
-                decomposition[role_name] = (self.token_names[best_idx], best_sim)
+        # Max along the tokens axis for each role
+        best_indices = np.argmax(sim_mat, axis=1)
+        best_sims = np.max(sim_mat, axis=1)
+
+        for m, role_name in enumerate(self.role_names):
+            sim = float(best_sims[m])
+            if sim > threshold:
+                decomposition[role_name] = (self.token_names[best_indices[m]], sim)
+
         return decomposition
 
     def cleanup(self, query_vec: np.ndarray, threshold: float = 0.45,
