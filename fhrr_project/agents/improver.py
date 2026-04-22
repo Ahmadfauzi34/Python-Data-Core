@@ -99,6 +99,14 @@ class SelfImprovementEngine:
 
     def _generate_suggestions(self, gaps: List[Dict]) -> List[Dict]:
         suggestions = []
+
+        # Pre-calculate stalk centers if sheaf_isolation gaps are present
+        stalk_names = []
+        stalk_centers = None
+        if any(g['type'] == 'sheaf_isolation' for g in gaps[:5]) and self.topo.sheaf.stalks:
+            stalk_names = list(self.topo.sheaf.stalks.keys())
+            stalk_centers = np.stack([self.topo.sheaf.stalks[cat].center for cat in stalk_names])
+
         for gap in gaps[:5]:
             if gap['type'] == 'spectral_isolation':
                 tok = gap['token']
@@ -113,16 +121,22 @@ class SelfImprovementEngine:
                     })
             elif gap['type'] == 'sheaf_isolation':
                 cat = gap['category']
-                if self.topo.sheaf.stalks:
-                    best_cat = None
-                    best_sim = -1
-                    for other_cat, stalk in self.topo.sheaf.stalks.items():
-                        if other_cat == cat: continue
-                        sim = self.engine.sim(self.topo.sheaf.stalks[cat].center, stalk.center)
-                        if sim > best_sim:
-                            best_sim = sim
-                            best_cat = other_cat
-                    if best_cat:
+                if stalk_centers is not None:
+                    target_center = self.topo.sheaf.stalks[cat].center
+                    # Vectorized similarity: mean(cos(A - B))
+                    # A is target_center (dim,), B is stalk_centers (N, dim)
+                    # result is (N,)
+                    sims = np.mean(np.cos(stalk_centers - target_center), axis=1)
+
+                    # Mask out the current category
+                    cat_idx = stalk_names.index(cat)
+                    sims[cat_idx] = -1.0
+
+                    best_idx = np.argmax(sims)
+                    best_sim = sims[best_idx]
+
+                    if best_sim > -1:
+                        best_cat = stalk_names[best_idx]
                         suggestions.append({
                             'target_gap': gap, 'action': 'generate_corpus',
                             'template': f"sesuatu yang {cat} sering digunakan dengan {best_cat}",
