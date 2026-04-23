@@ -57,3 +57,30 @@ reasoning_patterns:
   mechanism: role_swap
   confidence: 0.7
   explanation: guru mengatakan murid mendengar
+- id: r7
+  name: causal_read_smart
+  premise:
+    predikat: baca
+  conclusion:
+    atribut: pintar
+  mechanism: transform
+  confidence: 0.85
+  explanation: membaca menyebabkan pintar
+- id: r8
+  name: causal_cook_food
+  premise:
+    predikat: masak
+  conclusion:
+    atribut: kenyang
+  mechanism: transform
+  confidence: 0.7
+  explanation: memasak menghasilkan makanan yang membuat kenyang
+- id: r9
+  name: spatial_in_room_in_building
+  premise:
+    lokasi: laboratorium
+  conclusion:
+    lokasi: sekolah
+  mechanism: association
+  confidence: 0.9
+  explanation: laboratorium berada di dalam sekolah
