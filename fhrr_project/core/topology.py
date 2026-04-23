@@ -395,16 +395,27 @@ class SpectralGeometry:
 
     def build_affinity(self, sigma: float = 0.15, k: int = 20) -> np.ndarray:
         n = len(self.engine.token_names)
-        aff = np.zeros((n, n))
-        for i in range(n):
-            sims = np.array([
-                self.engine.sim(self.engine.token_phases[i], self.engine.token_phases[j])
-                for j in range(n)
-            ])
-            knn_thresh = np.partition(sims, -k)[-k] if n > k else -1.0
-            for j in range(n):
-                if sims[j] >= knn_thresh:
-                    aff[i, j] = np.exp(-((1.0 - sims[j]) ** 2) / (2 * sigma ** 2))
+        if n == 0:
+            self.affinity = np.zeros((0, 0))
+            return self.affinity
+
+        # Vectorized pairwise similarity using trig identity: cos(A-B) = cos(A)cos(B) + sin(A)sin(B)
+        phases = np.array(self.engine.token_phases)
+        C = np.cos(phases)
+        S = np.sin(phases)
+        sim_mat = (C @ C.T + S @ S.T) / self.engine.dim
+
+        if n > k:
+            # np.partition puts k-th largest element at index -k
+            knn_thresh = np.partition(sim_mat, -k, axis=1)[:, -k]
+            # Broadcast thresh to apply element-wise
+            mask = sim_mat >= knn_thresh[:, None]
+        else:
+            mask = np.ones_like(sim_mat, dtype=bool)
+
+        aff = np.zeros_like(sim_mat)
+        aff[mask] = np.exp(-((1.0 - sim_mat[mask]) ** 2) / (2 * sigma ** 2))
+
         self.affinity = np.maximum(aff, aff.T)
         return self.affinity
 

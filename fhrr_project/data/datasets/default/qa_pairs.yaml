@@ -1,0 +1,57 @@
+qa_pairs:
+- id: qa1
+  question: siapa yang makan mangga?
+  q_focus:
+  - predikat
+  - pasien
+  answer_role: agen
+  source: o1
+  reasoning: cari agen dari peristiwa makan mangga
+- id: qa2
+  question: apa yang dimakan anak?
+  q_focus:
+  - agen
+  - predikat
+  answer_role: pasien
+  source: o1
+  reasoning: cari pasien dari aksi makan oleh anak
+- id: qa3
+  question: di mana anak makan?
+  q_focus:
+  - agen
+  - predikat
+  answer_role: lokasi
+  source: o1
+  reasoning: cari lokasi dari peristiwa makan
+- id: qa4
+  question: kapan anak makan mangga?
+  q_focus:
+  - agen
+  - predikat
+  - pasien
+  answer_role: waktu
+  source: o1
+  reasoning: cari waktu dari peristiwa
+- id: qa5
+  question: mengapa tanah basah?
+  q_focus:
+  - atribut
+  answer_role: agen
+  source: o2
+  reasoning: inferensi kausal dari basah ke penyebab
+- id: qa6
+  question: apa yang digunakan ayah untuk memotong?
+  q_focus:
+  - agen
+  - predikat
+  answer_role: instrumen
+  source: o7
+  reasoning: cari instrumen dari aksi potong
+- id: qa7
+  question: bagaimana perasaan anak setelah makan?
+  q_focus:
+  - agen
+  - predikat
+  answer_role: atribut
+  source: o1
+  reasoning: inferensi emosi dari aksi makan

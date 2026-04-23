@@ -1,0 +1,31 @@
+teaching_episodes:
+- id: t1
+  instruction: pelajari bahwa makan menyebabkan senang
+  type: induce_transform
+  data:
+    from: makan
+    to: senang
+  verify_by: qa7
+- id: t2
+  instruction: pelajari bahwa terbang ke atas
+  type: induce_transform
+  data:
+    from: terbang
+    to: atas
+  verify_by: qa3
+- id: t3
+  instruction: pelajari untuk menjawab siapa dengan mencari agen
+  type: induce_qa_strategy
+  data:
+    q_type: siapa
+    target_role: agen
+  verify_by: qa1
+- id: t4
+  instruction: pelajari untuk mendeteksi kontradiksi ukuran
+  type: induce_contradiction
+  data:
+    dimension: ukuran
+    antonyms:
+    - besar
+    - kecil
+  verify_by: l1

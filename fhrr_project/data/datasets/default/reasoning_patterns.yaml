@@ -1,0 +1,59 @@
+reasoning_patterns:
+- id: r1
+  name: causal_eat_happy
+  premise:
+    predikat: makan
+  conclusion:
+    atribut: senang
+  mechanism: transform
+  confidence: 0.75
+  explanation: makan mengakibatkan senang
+- id: r2
+  name: causal_rain_wet
+  premise:
+    predikat: turun
+    agen: hujan
+  conclusion:
+    atribut: basah
+  mechanism: transform
+  confidence: 0.8
+  explanation: hujan membuat basah
+- id: r3
+  name: spatial_fly_up
+  premise:
+    predikat: terbang
+  conclusion:
+    arah: atas
+  mechanism: transform
+  confidence: 0.9
+  explanation: terbang menuju atas
+- id: r4
+  name: antonym_size
+  premise:
+    atribut: besar
+  conclusion:
+    atribut: kecil
+  mechanism: transform
+  confidence: 1.0
+  explanation: besar adalah lawan kecil
+  invert: true
+- id: r5
+  name: role_instrument
+  premise:
+    predikat: potong
+  conclusion:
+    instrumen: gergaji
+  mechanism: association
+  confidence: 0.6
+  explanation: potong biasanya pakai gergaji
+- id: r6
+  name: entailment_communication
+  premise:
+    predikat: katakan
+    agen: guru
+  conclusion:
+    predikat: dengar
+    agen: murid
+  mechanism: role_swap
+  confidence: 0.7
+  explanation: guru mengatakan murid mendengar

@@ -1,0 +1,348 @@
+vocab:
+  categories:
+    benda_padat:
+    - batu
+    - besi
+    - kayu
+    - kaca
+    - emas
+    - perak
+    - tembok
+    - meja
+    - kursi
+    - pintu
+    - gergaji
+    - benteng
+    - buku
+    - papan
+    - kapur
+    benda_cair:
+    - air
+    - minyak
+    - darah
+    - susu
+    - madu
+    - cairan
+    - hujan
+    - sungai
+    benda_energi:
+    - api
+    - listrik
+    - cahaya
+    - panas
+    - dingin
+    - angin
+    - petir
+    - sinar
+    hewan:
+    - anjing
+    - kucing
+    - burung
+    - ikan
+    - ular
+    - gajah
+    - harimau
+    - kupu_kupu
+    - lebah
+    - lumba_lumba
+    tumbuhan:
+    - pohon
+    - rumput
+    - bunga
+    - mangga
+    - padi
+    - kelapa
+    - anggrek
+    - bambu
+    manusia:
+    - orang
+    - anak
+    - ibu
+    - ayah
+    - guru
+    - dokter
+    - teman
+    - musuh
+    - pemimpin
+    - murid
+    - rakyat
+    - pasien
+    konsep:
+    - kebenaran
+    - keadilan
+    - kebebasan
+    - keamanan
+    - bahagia
+    - dukacita
+    - cinta
+    - benci
+    - takut
+    - berani
+    - harapan
+    - putus_asa
+    aksi_fisik:
+    - lari
+    - jalan
+    - lompat
+    - terbang
+    - berenang
+    - duduk
+    - tidur
+    - bangun
+    - makan
+    - minum
+    - tendang
+    - tangkap
+    - lempar
+    - potong
+    - ukir
+    - masak
+    - turun
+    aksi_komunikasi:
+    - katakan
+    - tulis
+    - baca
+    - dengar
+    - lihat
+    - tanya
+    - jawab
+    - jelaskan
+    - peringatkan
+    - puji
+    - kritik
+    - pidato
+    aksi_sosial:
+    - bantu
+    - tipu
+    - lindungi
+    - serang
+    - dukung
+    - khianati
+    - hormati
+    - hina
+    ukuran:
+    - besar
+    - kecil
+    - panjang
+    - pendek
+    - lebar
+    - sempit
+    - tinggi
+    - rendah
+    - tebal
+    - tipis
+    warna:
+    - merah
+    - biru
+    - hijau
+    - kuning
+    - hitam
+    - putih
+    - ungu
+    - oranye
+    - coklat
+    - abu
+    kualitas:
+    - baik
+    - buruk
+    - indah
+    - jelek
+    - sehat
+    - sakit
+    - kuat
+    - lemah
+    - cepat
+    - lambat
+    - mudah
+    - sulit
+    - tajam
+    emosi:
+    - senang
+    - sedih
+    - marah
+    - takut
+    - jijik
+    - terkejut
+    - tenang
+    - gembira
+    - cemas
+    - bangga
+    - malu
+    keadaan:
+    - baru
+    - lama
+    - muda
+    - tua
+    - basah
+    - kering
+    - panas
+    - dingin
+    - bersih
+    - kotor
+    - rapi
+    - berantakan
+    - jernih
+    kecepatan:
+    - cepat
+    - lambat
+    - tiba_tiba
+    - perlahan
+    - konstan
+    - fluktuatif
+    waktu:
+    - sekarang
+    - nanti
+    - kemarin
+    - besok
+    - selalu
+    - pernah
+    - segera
+    - akhirnya
+    - pagi
+    - siang
+    - malam
+    ruang:
+    - sini
+    - sana
+    - atas
+    - bawah
+    - dalam
+    - luar
+    - dekat
+    - jauh
+    - tengah
+    - depan
+    - belakang
+    kuantitas:
+    - banyak
+    - sedikit
+    - semua
+    - sebagian
+    - kosong
+    - penuh
+    - cukup
+    - kurang
+    relasi:
+    - di
+    - ke
+    - dari
+    - dalam
+    - luar
+    - antara
+    - melalui
+    - melewati
+    - sebelum
+    - sesudah
+    - selama
+    - ketika
+    - sampai
+    - sejak
+    - karena
+    - sebab
+    - akibat
+    - maka
+    - jadi
+    - oleh
+    - untuk
+    - dengan
+    - tanpa
+    - bagi
+    - milik
+    - bersama
+    - sendiri
+    - dan
+    - atau
+    - tetapi
+    - namun
+    - meski
+    - walaupun
+    - jika
+    - kecuali
+    tempat:
+    - kebun
+    - rumah_sakit
+    - dapur
+    makanan:
+    - nasi
+    kumpulan:
+    - pasukan
+  poles:
+    ukuran:
+      positive:
+      - besar
+      - panjang
+      - lebar
+      - tinggi
+      - tebal
+      negative:
+      - kecil
+      - pendek
+      - sempit
+      - rendah
+      - tipis
+    warna:
+      positive:
+      - merah
+      - hijau
+      - hitam
+      - ungu
+      - coklat
+      negative:
+      - biru
+      - kuning
+      - putih
+      - oranye
+      - abu
+    kualitas:
+      positive:
+      - baik
+      - indah
+      - sehat
+      - kuat
+      - cepat
+      - mudah
+      - tajam
+      negative:
+      - buruk
+      - jelek
+      - sakit
+      - lemah
+      - lambat
+      - sulit
+    emosi:
+      positive:
+      - senang
+      - marah
+      - jijik
+      - tenang
+      - cemas
+      - malu
+      negative:
+      - sedih
+      - takut
+      - terkejut
+      - gembira
+      - bangga
+    kecepatan:
+      positive:
+      - cepat
+      - tiba_tiba
+      negative:
+      - lambat
+      - perlahan
+    keadaan:
+      positive:
+      - baru
+      - muda
+      - basah
+      - panas
+      - bersih
+      - rapi
+      - jernih
+      negative:
+      - lama
+      - tua
+      - kering
+      - dingin
+      - kotor
+      - berantakan

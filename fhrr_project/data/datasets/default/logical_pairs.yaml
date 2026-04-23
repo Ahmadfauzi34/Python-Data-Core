@@ -1,0 +1,46 @@
+logical_pairs:
+- id: l1
+  stmt1:
+    pasien: batu
+    atribut: besar
+  stmt2:
+    pasien: batu
+    atribut: kecil
+  relation: contradiction
+  dimension: ukuran
+- id: l2
+  stmt1:
+    pasien: air
+    atribut: panas
+  stmt2:
+    pasien: air
+    atribut: dingin
+  relation: contradiction
+  dimension: keadaan
+- id: l3
+  stmt1:
+    agen: orang
+    predikat: senang
+  stmt2:
+    agen: orang
+    predikat: sedih
+  relation: contradiction
+  dimension: emosi
+- id: l4
+  stmt1:
+    agen: burung
+    predikat: terbang
+  stmt2:
+    agen: burung
+    lokasi: atas
+  relation: entailment
+  dimension: spatial
+- id: l5
+  stmt1:
+    agen: guru
+    predikat: katakan
+  stmt2:
+    agen: murid
+    predikat: dengar
+  relation: entailment
+  dimension: communication

@@ -1,0 +1,49 @@
+comprehension_tasks:
+- id: c1
+  context: o1
+  question: apakah anak makan mangga di kebun?
+  expected_answer: ya
+  required_bindings:
+  - agen
+  - predikat
+  - pasien
+  - lokasi
+  inference_needed: false
+- id: c2
+  context: o1
+  question: apakah anak senang setelah makan?
+  expected_answer: ya
+  required_bindings:
+  - agen
+  - predikat
+  inference_needed: true
+  inference_rule: r1
+- id: c3
+  context: o4
+  question: apakah burung berada di atas?
+  expected_answer: ya
+  required_bindings:
+  - agen
+  - predikat
+  inference_needed: true
+  inference_rule: r3
+- id: c4
+  context: o1
+  question: apakah anak makan pisang?
+  expected_answer: tidak
+  required_bindings:
+  - agen
+  - predikat
+  - pasien
+  inference_needed: false
+  contradiction_check: true
+- id: c5
+  context:
+  - o1
+  - o7
+  question: apa persamaan antara anak dan ayah?
+  expected_answer: keduanya adalah agen
+  required_bindings:
+  - agen
+  inference_needed: true
+  integration: compare_roles

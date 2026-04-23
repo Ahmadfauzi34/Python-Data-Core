@@ -1,0 +1,21 @@
+explanation_templates:
+- id: e1
+  pattern: decompose_svo
+  strategy: uraikan peran agen-predikat-pasien
+  template: '{agen} melakukan {predikat} terhadap {pasien}'
+- id: e2
+  pattern: decompose_full
+  strategy: uraikan semua peran
+  template: '{agen} {predikat} {pasien} di {lokasi} pada {waktu} dengan {instrumen}'
+- id: e3
+  pattern: causal_chain
+  strategy: jelaskan rantai kausal
+  template: karena {premise}, maka {conclusion}
+- id: e4
+  pattern: contrast_antonym
+  strategy: kontras dengan lawan kata
+  template: '{token} adalah lawan dari {antonym} dalam kategori {category}'
+- id: e5
+  pattern: analogy_transport
+  strategy: analogi via transport
+  template: seperti {source} dalam {source_cat}, {target} dalam {target_cat}
