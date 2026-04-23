@@ -1,271 +1,325 @@
 vocab:
   categories:
     benda_padat:
-    - batu
+    - kaca
+    - benteng
+    - meja
+    - kapur
+    - tembok
+    - emas
+    - buku
+    - perak
+    - gergaji
+    - papan
+    - pintu
+    - kursi
     - besi
     - kayu
-    - kaca
-    - emas
-    - perak
-    - tembok
-    - meja
-    - kursi
-    - pintu
-    - gergaji
-    - benteng
-    - buku
-    - papan
-    - kapur
+    - batu
     benda_cair:
-    - air
-    - minyak
-    - darah
     - susu
-    - madu
+    - darah
+    - sungai
+    - air
     - cairan
     - hujan
-    - sungai
+    - madu
+    - minyak
     benda_energi:
-    - api
     - listrik
-    - cahaya
+    - sinar
+    - petir
+    - api
+    - angin
     - panas
     - dingin
-    - angin
-    - petir
-    - sinar
+    - cahaya
     hewan:
+    - lebah
+    - harimau
     - anjing
     - kucing
-    - burung
-    - ikan
-    - ular
-    - gajah
-    - harimau
-    - kupu_kupu
-    - lebah
     - lumba_lumba
+    - ular
+    - ikan
+    - kupu_kupu
+    - gajah
+    - burung
     tumbuhan:
-    - pohon
-    - rumput
-    - bunga
-    - mangga
-    - padi
-    - kelapa
     - anggrek
+    - bunga
+    - rumput
+    - kelapa
     - bambu
+    - padi
+    - mangga
+    - pohon
     manusia:
-    - orang
-    - anak
-    - ibu
-    - ayah
-    - guru
     - dokter
-    - teman
-    - musuh
+    - pasien
+    - guru
     - pemimpin
+    - ibu
     - murid
     - rakyat
-    - pasien
+    - musuh
+    - orang
+    - teman
+    - anak
+    - ayah
     konsep:
-    - kebenaran
-    - keadilan
-    - kebebasan
-    - keamanan
+    - berani
     - bahagia
     - dukacita
-    - cinta
-    - benci
     - takut
-    - berani
+    - kebebasan
+    - keadilan
+    - benci
+    - kebenaran
     - harapan
+    - cinta
+    - keamanan
     - putus_asa
     aksi_fisik:
-    - lari
-    - jalan
+    - buka
+    - masak
     - lompat
-    - terbang
-    - berenang
-    - duduk
     - tidur
-    - bangun
-    - makan
-    - minum
-    - tendang
     - tangkap
     - lempar
-    - potong
-    - ukir
-    - masak
-    - turun
-    aksi_komunikasi:
-    - katakan
-    - tulis
+    - duduk
+    - bangun
+    - tutup
+    - pukul
+    - angkat
+    - terbang
+    - kendarai
+    - jalan
+    - lari
+    - berenang
+    - minum
     - baca
+    - turun
+    - tulis
+    - tendang
+    - ukir
+    - potong
+    - makan
+    aksi_komunikasi:
     - dengar
-    - lihat
     - tanya
-    - jawab
     - jelaskan
-    - peringatkan
     - puji
-    - kritik
     - pidato
+    - katakan
+    - lihat
+    - baca
+    - peringatkan
+    - tulis
+    - kritik
+    - jawab
     aksi_sosial:
-    - bantu
-    - tipu
-    - lindungi
-    - serang
-    - dukung
     - khianati
-    - hormati
+    - tipu
+    - bantu
+    - serang
     - hina
+    - lindungi
+    - dukung
+    - hormati
     ukuran:
+    - sempit
     - besar
     - kecil
     - panjang
-    - pendek
-    - lebar
-    - sempit
     - tinggi
-    - rendah
+    - lebar
     - tebal
+    - pendek
+    - rendah
     - tipis
     warna:
-    - merah
-    - biru
-    - hijau
-    - kuning
-    - hitam
     - putih
+    - hijau
     - ungu
-    - oranye
+    - merah
+    - kuning
     - coklat
     - abu
+    - biru
+    - oranye
+    - hitam
     kualitas:
-    - baik
-    - buruk
+    - sulit
     - indah
-    - jelek
-    - sehat
+    - mudah
+    - lambat
     - sakit
     - kuat
     - lemah
-    - cepat
-    - lambat
-    - mudah
-    - sulit
     - tajam
+    - baik
+    - cepat
+    - jelek
+    - sehat
+    - buruk
     emosi:
-    - senang
-    - sedih
-    - marah
-    - takut
-    - jijik
-    - terkejut
-    - tenang
-    - gembira
+    - malu
     - cemas
     - bangga
-    - malu
+    - takut
+    - senang
+    - marah
+    - tenang
+    - terkejut
+    - gembira
+    - sedih
+    - jijik
     keadaan:
-    - baru
-    - lama
-    - muda
-    - tua
-    - basah
+    - jernih
     - kering
-    - panas
-    - dingin
+    - muda
+    - berantakan
+    - terang
+    - gelap
+    - baru
+    - bodoh
+    - lama
     - bersih
+    - tua
+    - pintar
+    - lapar
+    - basah
+    - dingin
+    - panas
+    - kenyang
     - kotor
     - rapi
-    - berantakan
-    - jernih
     kecepatan:
-    - cepat
-    - lambat
     - tiba_tiba
     - perlahan
-    - konstan
+    - lambat
+    - cepat
     - fluktuatif
+    - konstan
     waktu:
-    - sekarang
-    - nanti
-    - kemarin
-    - besok
-    - selalu
-    - pernah
-    - segera
-    - akhirnya
-    - pagi
-    - siang
     - malam
+    - pagi
+    - segera
+    - pernah
+    - akhirnya
+    - siang
+    - nanti
+    - selalu
+    - sekarang
+    - besok
+    - kemarin
     ruang:
-    - sini
-    - sana
+    - belakang
     - atas
     - bawah
+    - sana
     - dalam
-    - luar
+    - sini
+    - depan
     - dekat
+    - luar
     - jauh
     - tengah
-    - depan
-    - belakang
     kuantitas:
-    - banyak
     - sedikit
     - semua
-    - sebagian
     - kosong
     - penuh
-    - cukup
+    - banyak
     - kurang
+    - cukup
+    - sebagian
     relasi:
-    - di
-    - ke
-    - dari
-    - dalam
-    - luar
-    - antara
-    - melalui
-    - melewati
-    - sebelum
-    - sesudah
-    - selama
-    - ketika
-    - sampai
-    - sejak
-    - karena
-    - sebab
-    - akibat
-    - maka
-    - jadi
-    - oleh
     - untuk
-    - dengan
-    - tanpa
-    - bagi
-    - milik
-    - bersama
-    - sendiri
-    - dan
-    - atau
-    - tetapi
+    - melalui
+    - sampai
+    - antara
+    - luar
+    - melewati
     - namun
+    - sebab
+    - sesudah
+    - ketika
+    - sendiri
+    - akibat
+    - dalam
+    - selama
+    - dari
+    - bersama
+    - oleh
+    - dan
     - meski
-    - walaupun
-    - jika
+    - karena
+    - jadi
+    - dengan
+    - tetapi
+    - ke
     - kecuali
+    - walaupun
+    - tanpa
+    - di
+    - jika
+    - sebelum
+    - sejak
+    - maka
+    - milik
+    - bagi
+    - atau
     tempat:
-    - kebun
     - rumah_sakit
+    - jalan
+    - sekolah
+    - kantor
     - dapur
+    - restoran
+    - laboratorium
+    - garasi
+    - pasar
+    - kebun
     makanan:
+    - apel
+    - kue
     - nasi
+    - roti
+    - sayur
+    - ikan
+    - daging
     kumpulan:
     - pasukan
+    profesi:
+    - dokter
+    - petani
+    - guru
+    - polisi
+    - dosen
+    - koki
+    - ilmuwan
+    kendaraan:
+    - kereta
+    - mobil
+    - pesawat
+    - sepeda
+    - motor
+    cuaca:
+    - salju
+    - badai
+    - mendung
+    - cerah
+    - hujan
+    instrumen:
+    - payung
+    - buku
+    - pisau
+    - panci
+    - kunci
+    - pena
+    - komputer
   poles:
     ukuran:
       positive:

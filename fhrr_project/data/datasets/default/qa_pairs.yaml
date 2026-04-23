@@ -55,3 +55,19 @@ qa_pairs:
   answer_role: atribut
   source: o1
   reasoning: inferensi emosi dari aksi makan
+- id: qa8
+  question: apa yang dikendarai polisi?
+  q_focus:
+  - agen
+  - predikat
+  answer_role: pasien
+  source: o13
+  reasoning: cari pasien dari aksi kendarai oleh polisi
+- id: qa9
+  question: di mana dosen membaca?
+  q_focus:
+  - agen
+  - predikat
+  answer_role: lokasi
+  source: o12
+  reasoning: cari lokasi dari aksi baca oleh dosen

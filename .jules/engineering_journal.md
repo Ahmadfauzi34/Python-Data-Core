@@ -26,3 +26,13 @@
 **Context:** The `induce_roles` method in `SelfSupervisedDiscovery` utilized a primitive 1D K-Means loop. It iterated 15 times, and within each iteration, it iterated over N tokens and K centroids, redundantly using `np.pad`, `np.dot`, and scalar norms.
 **Decision:** Applied the same linear algebra vectorization principles used in topology. Built a padded, normalized `(N, max_len)` feature matrix `X` upfront. Substituted the nested loops with `sims = X @ centroids_norm.T` to calculate Euclidean cosine similarities simultaneously, and updated centroids using NumPy's highly efficient boolean masking `X[labels == k].mean(axis=0)`.
 **Consequences:** Replaced hundreds of scalar math iterations and Python list comprehensions with three robust, highly optimized BLAS matrix routines, maintaining identical unsupervised accuracy.
+
+## 2024-05-18 - [⬡ Carbo] - [Refactor Absolute Imports in fhrr_core.py]
+**Context:** The linter reported "Cannot resolve imported module" errors in `fhrr_core.py` because the facade pattern used a dynamic `sys.path.insert(0, _PKG_DIR)` to import components. This violates static analysis resolution patterns and makes navigation harder.
+**Decision:** Removed the `sys.path` hack. Refactored all internal component imports to use fully qualified absolute package imports compliant with PEP-8 (e.g., `from fhrr_project.core.engine import FHRREngine`).
+**Consequences:** Static analysis tools and linters (like Pyright/Mypy) can now successfully resolve all modules in `fhrr_core.py`. The architecture follows stricter packaging norms without functional regressions.
+
+## 2024-05-18 - [⬡ Carbo] - [Dataset Enrichment (Breadth & Depth)]
+**Context:** The modular `default` dataset contained very primitive lexical domains (mostly just animals and simple actions). To improve the agent's semantic comprehension and multi-hop reasoning, the dataset needs greater breadth and depth.
+**Decision:** Enriched all modules across the board. Added new categories (`profesi`, `kendaraan`, `cuaca`) and extensive vocabularies to `vocab.yaml`. Created corresponding episodic memories in `observations.yaml`. Added complex multi-hop transitive and causal rules to `reasoning_patterns.yaml` (e.g. spatial transitives: lab -> school). Updated `comprehension_tasks.yaml` to rigorously test these new logical connections.
+**Consequences:** The FHRR engine now has a significantly denser semantic topology and Knowledge Graph, enabling it to handle more complex real-world logic patterns and out-of-the-box generalizations.

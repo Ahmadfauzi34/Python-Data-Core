@@ -44,3 +44,21 @@ logical_pairs:
     predikat: dengar
   relation: entailment
   dimension: communication
+- id: l6
+  stmt1:
+    agen: orang
+    predikat: pintar
+  stmt2:
+    agen: orang
+    predikat: bodoh
+  relation: contradiction
+  dimension: keadaan
+- id: l7
+  stmt1:
+    agen: cuaca
+    predikat: hujan
+  stmt2:
+    agen: cuaca
+    predikat: cerah
+  relation: contradiction
+  dimension: cuaca

@@ -47,3 +47,21 @@ comprehension_tasks:
   - agen
   inference_needed: true
   integration: compare_roles
+- id: c6
+  context: o12
+  question: apakah dosen menjadi pintar?
+  expected_answer: ya
+  required_bindings:
+  - agen
+  - predikat
+  inference_needed: true
+  inference_rule: r7
+- id: c7
+  context: o12
+  question: apakah dosen berada di sekolah?
+  expected_answer: ya
+  required_bindings:
+  - agen
+  - lokasi
+  inference_needed: true
+  inference_rule: r9

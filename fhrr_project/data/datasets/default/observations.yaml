@@ -78,3 +78,41 @@ observations:
     pasien: benteng
     instrumen: pasukan
     atribut: kuat
+- id: o11
+  type: event
+  bindings:
+    agen: koki
+    predikat: masak
+    pasien: sayur
+    lokasi: restoran
+    instrumen: panci
+- id: o12
+  type: event
+  bindings:
+    agen: dosen
+    predikat: baca
+    pasien: buku
+    lokasi: laboratorium
+- id: o13
+  type: event
+  bindings:
+    agen: polisi
+    predikat: kendarai
+    pasien: mobil
+    lokasi: jalan
+    waktu: malam
+- id: o14
+  type: event
+  bindings:
+    agen: petani
+    predikat: angkat
+    pasien: sayur
+    lokasi: pasar
+    waktu: pagi
+- id: o15
+  type: event
+  bindings:
+    agen: hujan
+    predikat: turun
+    lokasi: luar
+    waktu: sekarang
