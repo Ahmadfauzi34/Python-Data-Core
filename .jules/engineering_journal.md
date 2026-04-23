@@ -41,3 +41,8 @@
 **Context:** The `text_ingestor.py` file attempted to use defensive programming for an internal module import (`KnowledgeGraphIngestor`), falling back to assigning classes to `None` if the import failed. This caused strict linters/type checkers to complain about incompatible type assignments (`None` assigned to class).
 **Decision:** Because `KnowledgeGraphIngestor` is a core internal component guaranteed to exist alongside `text_ingestor.py`, the `try-except` block is an anti-pattern. Removed it and replaced it with a direct, explicit import.
 **Consequences:** Cleans up the code, removes false-positive linter errors, and enforces tighter module coupling where appropriate.
+
+## 2024-05-18 - [⬡ Carbo] - [Meta-Cognitive Consolidator (Sleep Phase)]
+**Context:** To achieve true cognitive autonomy (Learning to Learn), the agent needs a mechanism to reflect on its experiences and induce systemic rules without human supervision.
+**Decision:** Built `MetaCognitiveConsolidator` in `fhrr_project/memory/consolidation.py`. It represents the "Sleep Phase". It extracts semantic transformations (e.g., $Target \oslash Source$), clusters these transformation vectors using highly optimized FHRR trigonometric similarity matrices, and searches for repeating patterns. If a transformation cluster reaches a critical threshold, it auto-induces a semantic law. Crucially, it features `persist_rules_to_dataset()`, allowing the AI to write its new logical findings directly back into `reasoning_patterns.yaml` for permanent meta-learning across reboots.
+**Consequences:** The FHRR cognitive architecture is now capable of self-modifying its dataset dynamically based on emergent patterns, bridging the gap between episodic experience and permanent semantic logic.
