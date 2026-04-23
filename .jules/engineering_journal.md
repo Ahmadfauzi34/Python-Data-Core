@@ -36,3 +36,13 @@
 **Context:** The modular `default` dataset contained very primitive lexical domains (mostly just animals and simple actions). To improve the agent's semantic comprehension and multi-hop reasoning, the dataset needs greater breadth and depth.
 **Decision:** Enriched all modules across the board. Added new categories (`profesi`, `kendaraan`, `cuaca`) and extensive vocabularies to `vocab.yaml`. Created corresponding episodic memories in `observations.yaml`. Added complex multi-hop transitive and causal rules to `reasoning_patterns.yaml` (e.g. spatial transitives: lab -> school). Updated `comprehension_tasks.yaml` to rigorously test these new logical connections.
 **Consequences:** The FHRR engine now has a significantly denser semantic topology and Knowledge Graph, enabling it to handle more complex real-world logic patterns and out-of-the-box generalizations.
+
+## 2024-05-18 - [⬡ Carbo] - [Fix Linter Typings in text_ingestor.py]
+**Context:** The `text_ingestor.py` file attempted to use defensive programming for an internal module import (`KnowledgeGraphIngestor`), falling back to assigning classes to `None` if the import failed. This caused strict linters/type checkers to complain about incompatible type assignments (`None` assigned to class).
+**Decision:** Because `KnowledgeGraphIngestor` is a core internal component guaranteed to exist alongside `text_ingestor.py`, the `try-except` block is an anti-pattern. Removed it and replaced it with a direct, explicit import.
+**Consequences:** Cleans up the code, removes false-positive linter errors, and enforces tighter module coupling where appropriate.
+
+## 2024-05-18 - [⬡ Carbo] - [Meta-Cognitive Consolidator (Sleep Phase)]
+**Context:** To achieve true cognitive autonomy (Learning to Learn), the agent needs a mechanism to reflect on its experiences and induce systemic rules without human supervision.
+**Decision:** Built `MetaCognitiveConsolidator` in `fhrr_project/memory/consolidation.py`. It represents the "Sleep Phase". It extracts semantic transformations (e.g., $Target \oslash Source$), clusters these transformation vectors using highly optimized FHRR trigonometric similarity matrices, and searches for repeating patterns. If a transformation cluster reaches a critical threshold, it auto-induces a semantic law. Crucially, it features `persist_rules_to_dataset()`, allowing the AI to write its new logical findings directly back into `reasoning_patterns.yaml` for permanent meta-learning across reboots.
+**Consequences:** The FHRR cognitive architecture is now capable of self-modifying its dataset dynamically based on emergent patterns, bridging the gap between episodic experience and permanent semantic logic.
