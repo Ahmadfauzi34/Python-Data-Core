@@ -103,9 +103,13 @@ class SelfImprovementEngine:
         # Pre-calculate stalk centers if sheaf_isolation gaps are present
         stalk_names = []
         stalk_centers = None
+        C_stalks = None
+        S_stalks = None
         if any(g['type'] == 'sheaf_isolation' for g in gaps[:5]) and self.topo.sheaf.stalks:
             stalk_names = list(self.topo.sheaf.stalks.keys())
             stalk_centers = np.stack([self.topo.sheaf.stalks[cat].center for cat in stalk_names])
+            C_stalks = np.cos(stalk_centers)
+            S_stalks = np.sin(stalk_centers)
 
         for gap in gaps[:5]:
             if gap['type'] == 'spectral_isolation':
@@ -123,10 +127,10 @@ class SelfImprovementEngine:
                 cat = gap['category']
                 if stalk_centers is not None:
                     target_center = self.topo.sheaf.stalks[cat].center
-                    # Vectorized similarity: mean(cos(A - B))
-                    # A is target_center (dim,), B is stalk_centers (N, dim)
-                    # result is (N,)
-                    sims = np.mean(np.cos(stalk_centers - target_center), axis=1)
+                    # Vectorized similarity using trig identity: cos(A-B) = cos(A)cos(B) + sin(A)sin(B)
+                    C_target = np.cos(target_center)
+                    S_target = np.sin(target_center)
+                    sims = (C_stalks @ C_target + S_stalks @ S_target) / self.engine.dim
 
                     # Mask out the current category
                     cat_idx = stalk_names.index(cat)
