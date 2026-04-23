@@ -129,6 +129,26 @@ class FHRRQueryInterface:
         if q_vec is None:
             return QueryResult(raw, "Encoding gagal", 0.0, 'failed', 'Tidak bisa encode bindings', [])
 
+        # 1. Semantic Reasoning (Vector Unbind)
+        role_vec = self.engine.get_role(Role.AGEN)
+        if role_vec is not None:
+            unbound = self.engine.unbind(q_vec, role_vec, out=np.zeros(self.engine.dim))
+            match, sim = self.engine.cleanup(unbound, threshold=0.45)
+            if match:
+                return QueryResult(raw, match, sim, 'vector_inference', 'Diekstrak via unbinding semantic FHRR', [])
+
+        # 2. Episodic Memory (Recent chat history)
+        epi_match, epi_sim = self.engine.query_episodic(q_vec, threshold=0.40)
+        if epi_match:
+            # Assuming episodic metadata contains the answer or we re-cleanup the vector
+            # For simplicity, let's unbind the agen from the episodic vector
+            if role_vec is not None:
+                unbound_epi = self.engine.unbind(epi_match['vector'], role_vec, out=np.zeros(self.engine.dim))
+                match_epi, sim_epi = self.engine.cleanup(unbound_epi, threshold=0.40)
+                if match_epi:
+                    return QueryResult(raw, match_epi, epi_sim, 'episodic_recall', 'Diingat dari konteks percakapan (Episodic Memory)', [])
+
+        # 3. Knowledge Graph Fallback (Rote Facts)
         best_match = None
         best_sim = -1.0
 
@@ -147,11 +167,7 @@ class FHRRQueryInterface:
             answer = best_match.get(TripleKey.SUBJECT, 'tidak diketahui')
             return QueryResult(raw, answer, best_sim, 'kg_lookup', f"Ditemukan di KG: {best_match.get(TripleKey.SUBJECT)} {best_match.get(TripleKey.PREDICATE)} {best_match.get(TripleKey.OBJECT)}", [{'entity': best_match.get(TripleKey.OBJECT), 'relation': best_match.get(TripleKey.PREDICATE), 'sim': best_sim}])
 
-        match, sim = self.engine.cleanup(q_vec, threshold=0.35)
-        if match:
-            return QueryResult(raw, match, sim, 'cleanup_fallback', 'Hasil pencarian via vector cleanup', [])
-
-        return QueryResult(raw, "Tidak ditemukan", 0.0, 'not_found', 'Tidak ada match di KG maupun vocab', [])
+        return QueryResult(raw, "Tidak ditemukan", 0.0, 'not_found', 'Tidak ada match di Memori, Vector, maupun KG', [])
 
     def _handle_find_object(self, parsed: Dict, raw: str) -> QueryResult:
         entities = parsed['mentioned_entities']
@@ -168,22 +184,33 @@ class FHRRQueryInterface:
         q_vec = self.engine.encode(bindings)
         if q_vec is None: return QueryResult(raw, "Encoding gagal", 0.0, 'failed', '', [])
 
+        # 1. Semantic Reasoning (Vector Unbind)
+        role_vec = self.engine.get_role(Role.PASIEN)
+        if role_vec is not None:
+            unbound = self.engine.unbind(q_vec, role_vec, out=np.zeros(self.engine.dim))
+            match, sim = self.engine.cleanup(unbound, threshold=0.45)
+            if match:
+                return QueryResult(raw, match, sim, 'vector_inference', 'Diekstrak via unbinding semantic FHRR', [])
+
+        # 2. Episodic Memory (Recent chat history)
+        epi_match, epi_sim = self.engine.query_episodic(q_vec, threshold=0.40)
+        if epi_match:
+            if role_vec is not None:
+                unbound_epi = self.engine.unbind(epi_match['vector'], role_vec, out=np.zeros(self.engine.dim))
+                match_epi, sim_epi = self.engine.cleanup(unbound_epi, threshold=0.40)
+                if match_epi:
+                    return QueryResult(raw, match_epi, epi_sim, 'episodic_recall', 'Diingat dari konteks percakapan (Episodic Memory)', [])
+
+        # 3. Knowledge Graph Fallback (Rote Facts)
         if self.kg:
             for ent in entities:
                 related = self.kg.query_entity(ent, top_k=5)
                 for r in related:
                     triple = r['triple']
                     if triple.get(TripleKey.SUBJECT) == ent and triple.get(TripleKey.PREDICATE) in predicates:
-                        return QueryResult(raw, triple.get(TripleKey.OBJECT, 'tidak diketahui'), r['similarity'], 'kg_lookup', f"KG: {triple[TripleKey.SUBJECT]} {triple[TripleKey.PREDICATE]} {triple[TripleKey.OBJECT]}", [])
+                        return QueryResult(raw, triple.get(TripleKey.OBJECT, 'tidak diketahui'), r['similarity'], 'kg_lookup', f"Ditemukan di KG: {triple[TripleKey.SUBJECT]} {triple[TripleKey.PREDICATE]} {triple[TripleKey.OBJECT]}", [])
 
-        role_vec = self.engine.get_role(Role.PASIEN)
-        if q_vec is not None and role_vec is not None:
-            unbound = self.engine.unbind(q_vec, role_vec, out=np.zeros(self.engine.dim))
-            match, sim = self.engine.cleanup(unbound)
-            if match:
-                return QueryResult(raw, match, sim, 'role_unbind', 'Diekstrak via unbinding role pasien', [])
-
-        return QueryResult(raw, "Tidak ditemukan", 0.0, 'not_found', '', [])
+        return QueryResult(raw, "Tidak ditemukan", 0.0, 'not_found', 'Tidak ada match di Memori, Vector, maupun KG', [])
 
     def _handle_find_location(self, parsed: Dict, raw: str) -> QueryResult:
         return self._handle_role_query(parsed, raw, Role.LOKASI)
