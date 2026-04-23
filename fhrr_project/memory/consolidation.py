@@ -14,7 +14,7 @@ class MetaCognitiveConsolidator:
     Jika pola yang valid ditemukan, agen akan mengekstraknya sebagai aturan logis
     baru dan menulisnya secara permanen ke sistem.
     """
-    def __init__(self, engine: FHRREngine, dataset_dir: str = "fhrr_project/data/datasets/default/"):
+    def __init__(self, engine: FHRREngine, dataset_dir: str):
         self.engine = engine
         self.dataset_dir = dataset_dir
         self.min_cluster_size = 2
@@ -80,21 +80,33 @@ class MetaCognitiveConsolidator:
                 # Ekstrak rule
                 evidence = [transforms[idx] for idx in cluster_indices]
 
-                # Coba cari common pattern
-                # Heuristik: "Jika memakan -> kenyang", "Jika meminum -> kenyang" dsb.
-                # Kita akan menamai rule ini berdasarkan aksi mayoritas.
                 from_tokens = [e['from'] for e in evidence]
                 to_tokens = [e['to'] for e in evidence]
 
-                rule_name = f"auto_induced_{from_tokens[0]}_{to_tokens[0]}"
+                # True majority voting
+                from_majority = max(set(from_tokens), key=from_tokens.count)
+                to_majority = max(set(to_tokens), key=to_tokens.count)
+
+                rule_name = f"auto_induced_{from_majority}_{to_majority}"
+
+                # Calculate confidence by excluding the diagonal (i == j)
+                other_indices = [j for j in cluster_indices if j != i]
+                if other_indices:
+                    conf = float(round(np.mean([sim_mat[i, j] for j in other_indices]), 3))
+                else:
+                    conf = 1.0 # Fallback should not happen if min_cluster_size >= 2
+
+                # Semantic signature for deduplication
+                semantic_signature = f"premise:predikat={from_majority}|conclusion:atribut={to_majority}"
 
                 new_rule = {
                     'id': f"auto_r_{int(time.time())}_{i}",
                     'name': rule_name,
-                    'premise': {'predikat': from_tokens[0]}, # Simplified heuristic
-                    'conclusion': {'atribut': to_tokens[0]}, # Simplified heuristic
+                    'semantic_signature': semantic_signature,
+                    'premise': {'predikat': from_majority},
+                    'conclusion': {'atribut': to_majority},
                     'mechanism': 'transform',
-                    'confidence': float(round(np.mean([sim_mat[i, j] for j in cluster_indices]), 3)),
+                    'confidence': conf,
                     'explanation': f"Auto-induced from {len(evidence)} episodic similarities."
                 }
 
@@ -123,7 +135,8 @@ class MetaCognitiveConsolidator:
         if not new_rules:
             return
 
-        filepath = os.path.join(self.dataset_dir, "reasoning_patterns.yaml")
+        # Safety Guardrail: Write to a separate staging file
+        filepath = os.path.join(self.dataset_dir, "reasoning_patterns.auto.yaml")
 
         try:
             with open(filepath, "r") as f:
@@ -134,14 +147,15 @@ class MetaCognitiveConsolidator:
         if 'reasoning_patterns' not in data:
             data['reasoning_patterns'] = []
 
-        # Avoid duplicates based on name
-        existing_names = {r.get('name') for r in data['reasoning_patterns']}
+        # Avoid duplicates based on semantic signature rather than generated name
+        existing_signatures = {r.get('semantic_signature') for r in data['reasoning_patterns'] if r.get('semantic_signature')}
 
         added_count = 0
         for rule in new_rules:
-            if rule['name'] not in existing_names:
+            sig = rule.get('semantic_signature')
+            if sig and sig not in existing_signatures:
                 data['reasoning_patterns'].append(rule)
-                existing_names.add(rule['name'])
+                existing_signatures.add(sig)
                 added_count += 1
 
         if added_count > 0:

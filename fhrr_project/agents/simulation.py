@@ -12,7 +12,7 @@ class SimulationScenario:
     resulting_state: np.ndarray
     coherence_score: float = 0.0
     reward_score: float = 0.0
-    metadata: Dict[str, Any] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 class SimulationSpace:
     """
@@ -20,12 +20,14 @@ class SimulationSpace:
     can project possible future actions (roleplay) and evaluate their topological
     and epistemic consequences before collapsing the wavefunction into reality.
     """
-    def __init__(self, main_engine: FHRREngine, topology_layer: Optional[FHRRTopologicalLayer] = None):
+    def __init__(self, main_engine: FHRREngine, topology_layer: Optional[FHRRTopologicalLayer] = None, reward_weight: float = 0.6, coherence_weight: float = 0.4):
         self.main_engine = main_engine
         self.topology = topology_layer
         self.scenarios: List[SimulationScenario] = []
         self._base_state: Optional[np.ndarray] = None
         self._goal_state: Optional[np.ndarray] = None
+        self.reward_weight = reward_weight
+        self.coherence_weight = coherence_weight
 
     def initialize_state(self, current_state_bindings: Dict[str, str], goal_bindings: Optional[Dict[str, str]] = None):
         """Snapshots the current context to begin a simulation fork."""
@@ -98,7 +100,9 @@ class SimulationSpace:
 
                 if assignment:
                     is_consistent, violations = self.topology.sheaf.global_section_consistency(assignment, tol=0.4)
-                    coherence = 1.0 - (len(violations) / max(1, len(self.topology.sheaf.base_adj)))
+                    # Normalize by the number of categories actually assigned, not the entire base_adj
+                    num_constraints = len(assignment)
+                    coherence = 1.0 - (len(violations) / max(1, num_constraints))
                     scenario.coherence_score = max(0.0, coherence)
                 else:
                     scenario.coherence_score = 0.5
@@ -106,7 +110,7 @@ class SimulationSpace:
                 scenario.coherence_score = 1.0 # Perfect coherence if no topology checks
 
         # Sort scenarios by a combined metric
-        self.scenarios.sort(key=lambda x: (x.reward_score * 0.6) + (x.coherence_score * 0.4), reverse=True)
+        self.scenarios.sort(key=lambda x: (x.reward_score * self.reward_weight) + (x.coherence_score * self.coherence_weight), reverse=True)
         return self.scenarios
 
     def collapse(self) -> Optional[SimulationScenario]:
@@ -115,3 +119,31 @@ class SimulationSpace:
         if not evaluated:
             return None
         return evaluated[0]
+
+    def commit(self, scenario: SimulationScenario, kg_ingestor: Optional[Any] = None) -> bool:
+        """
+        Manifesasikan scenario yang dipilih ke dalam memori mesin utama.
+        Ini mengubah state FHRREngine dan KnowledgeGraph.
+        """
+        if scenario is None:
+            return False
+
+        # Store to episodic memory
+        self.main_engine.store_episodic(scenario.resulting_state, metadata=scenario.metadata)
+
+        # If KG ingestor is provided, commit the action if it resembles a valid triple
+        if kg_ingestor and 'aksi' in scenario.action_bindings and 'target' in scenario.action_bindings:
+            # We assume agent identity is preserved from base state (simplification)
+            try:
+                from fhrr_project.memory.knowledge_graph import KGTriple
+                triple = KGTriple(
+                    subject=self.main_engine.get_token_names()[0], # Fallback simplification
+                    predicate=scenario.action_bindings['aksi'],
+                    object=scenario.action_bindings['target'],
+                    metadata={"source": "simulation_commit"}
+                )
+                kg_ingestor.ingest_triple(triple)
+            except Exception as e:
+                print(f"[SimulationSpace] Failed to commit to KG: {e}")
+
+        return True

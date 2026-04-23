@@ -348,7 +348,15 @@ class FHRRResearchRunner:
         self.trainer: Optional[FHRRResearchTrainer] = None
         self.evaluator: Optional[FHRREvaluator] = None
         self.topo: Optional[Any] = None
-        self._kg: Optional[Any] = None 
+        self._kg: Optional[Any] = None
+
+        # New Cognitive Modules
+        self.simulation_space = None
+
+        from fhrr_project.memory.consolidation import MetaCognitiveConsolidator
+        dataset_dir = "fhrr_project/data/datasets/default"
+        self.consolidator = MetaCognitiveConsolidator(self.engine, dataset_dir=dataset_dir)
+        self.text_ingestor = None
 
     def load_dataset(self, dataset: Dict[str, Any]):
         self.dataset = dataset
@@ -359,11 +367,18 @@ class FHRRResearchRunner:
 
     def attach_topology(self, topo_layer):
         self.topo = topo_layer
+        from fhrr_project.agents.simulation import SimulationSpace
+        self.simulation_space = SimulationSpace(self.engine, self.topo)
         return self
 
     def attach_kg(self, kg_ingestor):
         self._kg = kg_ingestor
+        from fhrr_project.agents.text_ingestor import TextIngestorBlueprint
+        self.text_ingestor = TextIngestorBlueprint(self.engine, self._kg)
         return self
+
+
+
 
     def run_training(self) -> Dict[str, List[TrainingResult]]:
         if self.trainer is None:
@@ -476,3 +491,24 @@ class FHRRResearchRunner:
                             }
 
         return {'error': 'Cannot answer', 'question': qa['question']}
+
+    def simulate_and_commit(self, action_scenarios: List[Dict[str, str]], goal: Dict[str, str], current_state: Dict[str, str]):
+        """Menjalankan Mental Sandbox untuk mengevaluasi berbagai tindakan sebelum di-commit."""
+        self.simulation_space.initialize_state(current_state, goal)
+        for i, act in enumerate(action_scenarios):
+            self.simulation_space.project_action(f"scenario_{i}", act)
+        best = self.simulation_space.collapse()
+        if best:
+            self.simulation_space.commit(best, self._kg)
+            return best.id, best.action_bindings
+        return None, None
+
+    def sleep_and_consolidate(self):
+        """Menjalankan fase tidur (Meta-Learning) untuk mencari aturan baru."""
+        new_rules = self.consolidator.consolidate()
+        self.consolidator.persist_rules_to_dataset(new_rules)
+        return len(new_rules)
+
+    def ingest_unstructured_text(self, text: str):
+        """Memasukkan paragraf teks bebas ke dalam pipeline Text-to-FHRR."""
+        return self.text_ingestor.ingest_document(text)

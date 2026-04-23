@@ -75,6 +75,21 @@ with st.sidebar:
     st.metric("QA pairs", len(dataset.get("qa_pairs", [])))
     st.metric("KG triples", n_triples)
 
+    st.markdown("---")
+    st.subheader("Otonomi Kognitif")
+    if st.button("💤 Masuk Fase Tidur (Konsolidasi)", use_container_width=True):
+        with st.spinner("Mengkonsolidasi memori episodik..."):
+            n_rules = api.runner.sleep_and_consolidate()
+            st.success(f"Berhasil menginduksi {n_rules} aturan logis baru!")
+
+    if st.button("👁️ Simulasi Sandbox (Mock)", use_container_width=True):
+        with st.spinner("Menjalankan proyeksi simulasi..."):
+            best_id, best_bindings = api.runner.simulate_and_commit(
+                action_scenarios=[{"aksi": "sapa"}, {"aksi": "marah"}],
+                goal={"aksi": "sapa"},
+                current_state={"agen": "user", "aksi": "sapa"}
+            )
+            st.success(f"Skenario terpilih: {best_id} -> {best_bindings}")
 
 # -----------------------------------------------------------------------------
 # UI
