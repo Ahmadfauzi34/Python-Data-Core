@@ -28,3 +28,8 @@
 2. **OOTV Handling:** In `ingest_document`, if a token is unknown, we map its extracted semantic role to a lexical category guess (Predikat -> `aksi`, Lokasi -> `tempat`).
 3. **Storage:** Ingests into both the Episodic Buffer (short-term phase state) and Knowledge Graph (long-term explicit graph).
 **Blockers:** Current heuristics only support S-P-O and simple prepositional modifiers. Deep recursive structures (anak yang memakai baju merah memakan apel) still require a proper dependency parser like Spacy in the future.
+
+## 2024-05-18 - [⬡ Carbo] - [Discoverer Clustering Vectorization]
+**Context:** The `induce_roles` method in `SelfSupervisedDiscovery` utilized a primitive 1D K-Means loop. It iterated 15 times, and within each iteration, it iterated over N tokens and K centroids, redundantly using `np.pad`, `np.dot`, and scalar norms.
+**Decision:** Applied the same linear algebra vectorization principles used in topology. Built a padded, normalized `(N, max_len)` feature matrix `X` upfront. Substituted the nested loops with `sims = X @ centroids_norm.T` to calculate Euclidean cosine similarities simultaneously, and updated centroids using NumPy's highly efficient boolean masking `X[labels == k].mean(axis=0)`.
+**Consequences:** Replaced hundreds of scalar math iterations and Python list comprehensions with three robust, highly optimized BLAS matrix routines, maintaining identical unsupervised accuracy.

@@ -77,23 +77,42 @@ class SelfSupervisedDiscovery:
             self._ideal_profile(max_len, 'end')
         ])
 
+        # Pre-build normalized feature matrix X
+        X = np.zeros((n, max_len))
+        for i, tok in enumerate(tokens):
+            p = profiles[tok]
+            X[i, :len(p)] = p
+
+        # Normalize rows of X
+        norms = np.linalg.norm(X, axis=1, keepdims=True)
+        X = X / (norms + 1e-12)
+
         labels = np.zeros(n, dtype=int)
         for _ in range(15):
-            for i in range(n):
-                v = np.pad(profiles[tokens[i]], (0, max_len - len(profiles[tokens[i]])))
-                sims = [np.dot(v, c) / (np.linalg.norm(v) * np.linalg.norm(c) + 1e-12) for c in centroids]
-                labels[i] = int(np.argmax(sims))
+            # Normalize centroids
+            c_norms = np.linalg.norm(centroids, axis=1, keepdims=True)
+            centroids_norm = centroids / (c_norms + 1e-12)
+
+            # Vectorized dot product for cosine similarity
+            sims = X @ centroids_norm.T
+            labels = np.argmax(sims, axis=1)
+
+            # Vectorized centroid update
             for k in range(3):
-                members = [profiles[tokens[i]] for i in range(n) if labels[i] == k]
-                if members:
-                    avg = np.zeros(max_len)
-                    for m in members:
-                        avg += np.pad(m, (0, max_len - len(m)))
-                    avg /= len(members)
+                mask = labels == k
+                if mask.any():
+                    avg = X[mask].mean(axis=0)
                     centroids[k] = avg / (avg.sum() + 1e-12)
 
         role_names = ['discovered_subject', 'discovered_predicate', 'discovered_object']
         role_map = {}
+
+        # Calculate final confidence dynamically
+        c_norms = np.linalg.norm(centroids, axis=1, keepdims=True)
+        centroids_norm = centroids / (c_norms + 1e-12)
+        final_sims = X @ centroids_norm.T
+        confidences = np.max(final_sims, axis=1)
+
         for i, tok in enumerate(tokens):
             assigned_role = role_names[labels[i]]
             role_map[tok] = assigned_role
@@ -102,11 +121,7 @@ class SelfSupervisedDiscovery:
             self.discovered_roles[tok] = {
                 'role': assigned_role,
                 'position_profile': profiles[tok],
-                'confidence': float(np.max([
-                    np.dot(np.pad(profiles[tok], (0, max_len - len(profiles[tok]))), centroids[k])
-                    / (np.linalg.norm(np.pad(profiles[tok], (0, max_len - len(profiles[tok])))) * np.linalg.norm(centroids[k]) + 1e-12)
-                    for k in range(3)
-                ]))
+                'confidence': float(confidences[i])
             }
 
         print(f"[Discovery] Roles induced: {len(set(role_map.values()))} roles for {len(role_map)} tokens")
