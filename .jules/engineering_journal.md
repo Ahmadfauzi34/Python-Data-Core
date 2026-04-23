@@ -36,3 +36,8 @@
 **Context:** The modular `default` dataset contained very primitive lexical domains (mostly just animals and simple actions). To improve the agent's semantic comprehension and multi-hop reasoning, the dataset needs greater breadth and depth.
 **Decision:** Enriched all modules across the board. Added new categories (`profesi`, `kendaraan`, `cuaca`) and extensive vocabularies to `vocab.yaml`. Created corresponding episodic memories in `observations.yaml`. Added complex multi-hop transitive and causal rules to `reasoning_patterns.yaml` (e.g. spatial transitives: lab -> school). Updated `comprehension_tasks.yaml` to rigorously test these new logical connections.
 **Consequences:** The FHRR engine now has a significantly denser semantic topology and Knowledge Graph, enabling it to handle more complex real-world logic patterns and out-of-the-box generalizations.
+
+## 2024-05-18 - [⬡ Carbo] - [Fix Linter Typings in text_ingestor.py]
+**Context:** The `text_ingestor.py` file attempted to use defensive programming for an internal module import (`KnowledgeGraphIngestor`), falling back to assigning classes to `None` if the import failed. This caused strict linters/type checkers to complain about incompatible type assignments (`None` assigned to class).
+**Decision:** Because `KnowledgeGraphIngestor` is a core internal component guaranteed to exist alongside `text_ingestor.py`, the `try-except` block is an anti-pattern. Removed it and replaced it with a direct, explicit import.
+**Consequences:** Cleans up the code, removes false-positive linter errors, and enforces tighter module coupling where appropriate.

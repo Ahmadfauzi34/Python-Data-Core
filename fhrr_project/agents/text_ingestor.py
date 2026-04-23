@@ -3,12 +3,7 @@ from typing import List, Dict, Any, Optional
 from fhrr_project.core.engine import FHRREngine
 from fhrr_project.core.roles import Role
 
-# Optional import for KG integration
-try:
-    from fhrr_project.memory.knowledge_graph import KnowledgeGraphIngestor, KGTriple
-except ImportError:
-    KnowledgeGraphIngestor = None
-    KGTriple = None
+from fhrr_project.memory.knowledge_graph import KnowledgeGraphIngestor, KGTriple
 
 
 class TextIngestorBlueprint:
