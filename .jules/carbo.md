@@ -20,3 +20,11 @@
 **Context:** The `build_affinity` method in `fhrr_project/core/topology.py` used a nested double Python loop (`O(N^2)`) to compute the element-wise exponential weighting for the K-Nearest Neighbors topology adjacency matrix. This caused ~7 second delays for just 500 tokens.
 **Decision:** Rewrote the entire method into pure linear algebra. Generated the full NxN pairwise similarity matrix instantaneously using `(C @ C.T + S @ S.T) / dim`. Applied the KNN threshold filter via `np.partition(..., axis=1)`, and applied the affinity exponential scaling directly on the boolean mask.
 **Consequences:** Complete elimination of the Python loops, bringing the operation down to ~0.16s (>40x speedup), making large-scale topology clustering operations vastly more fluid.
+
+## 2024-05-18 - [⬡ Carbo] - [Rule-based Semantic NLP Extraction Blueprint]
+**Vision:** Text ingestion should be intelligent enough to bridge unstructured text to FHRR bindings without massive NLP overhead, using prepositional cues to assign semantic roles and categorize Out-Of-Vocabulary words.
+**Architecture:**
+1. **Extraction:** A state-machine in `_extract_entities_and_roles` routes tokens based on prepositional triggers (`di` -> Lokasi, `oleh` -> Agen).
+2. **OOTV Handling:** In `ingest_document`, if a token is unknown, we map its extracted semantic role to a lexical category guess (Predikat -> `aksi`, Lokasi -> `tempat`).
+3. **Storage:** Ingests into both the Episodic Buffer (short-term phase state) and Knowledge Graph (long-term explicit graph).
+**Blockers:** Current heuristics only support S-P-O and simple prepositional modifiers. Deep recursive structures (anak yang memakai baju merah memakan apel) still require a proper dependency parser like Spacy in the future.
