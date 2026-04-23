@@ -30,3 +30,8 @@ Workflow `Start application`: `streamlit run main.py --server.port 5000 ...`
 
 ## Test
 `python -m unittest discover tests -v` — smoke test (dataset, validator, ingest, end-to-end query) + unit test parser/normalizer.
+
+- `fhrr_project/agents/simulation.py`: (Baru) Modul "Mental Sandbox" (SimulationSpace) untuk agen melakukan proyeksi masa depan menggunakan aljabar kompleks sebelum bertindak.
+- `fhrr_project/agents/text_ingestor.py`: (Baru) Blueprint pipeline NLP berstruktur Finite-State untuk mengubah teks tak terstruktur menjadi FHRR vectors.
+- `fhrr_project/memory/consolidation.py`: (Baru) Modul Meta-learning "Sleep Phase" yang otomatis mengekstrak aturan kausal logis baru dan menyimpannya secara mandiri ke `.auto.yaml`.
+- Dataset modular baru terletak di `fhrr_project/data/datasets/default/`.
