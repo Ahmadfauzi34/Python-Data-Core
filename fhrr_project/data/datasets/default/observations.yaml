@@ -1,0 +1,80 @@
+observations:
+- id: o1
+  type: event
+  bindings:
+    agen: anak
+    predikat: makan
+    pasien: mangga
+    lokasi: kebun
+    waktu: kemarin
+- id: o2
+  type: event
+  bindings:
+    agen: guru
+    predikat: tulis
+    lokasi: papan
+    atribut: putih
+    instrumen: kapur
+- id: o3
+  type: event
+  bindings:
+    agen: dokter
+    predikat: bantu
+    pasien: orang
+    atribut: sakit
+    lokasi: rumah_sakit
+- id: o4
+  type: event
+  bindings:
+    agen: burung
+    predikat: terbang
+    arah: atas
+    lokasi: pohon
+    atribut: tinggi
+- id: o5
+  type: event
+  bindings:
+    agen: ikan
+    predikat: berenang
+    lokasi: sungai
+    atribut: jernih
+- id: o6
+  type: event
+  bindings:
+    agen: kucing
+    predikat: tidur
+    lokasi: bawah
+    pasien: meja
+    atribut: besar
+- id: o7
+  type: event
+  bindings:
+    agen: ayah
+    predikat: potong
+    pasien: kayu
+    instrumen: gergaji
+    atribut: tajam
+- id: o8
+  type: event
+  bindings:
+    agen: ibu
+    predikat: masak
+    pasien: nasi
+    lokasi: dapur
+    atribut: bersih
+- id: o9
+  type: event
+  bindings:
+    agen: pemimpin
+    predikat: pidato
+    lokasi: depan
+    pasien: rakyat
+    atribut: banyak
+- id: o10
+  type: event
+  bindings:
+    agen: musuh
+    predikat: serang
+    pasien: benteng
+    instrumen: pasukan
+    atribut: kuat
