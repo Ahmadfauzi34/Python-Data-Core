@@ -115,3 +115,8 @@
 3. Extracting temporal causation is now strictly limited to `predikat`-to-`predikat/atribut` mappings.
 4. Auto-induced temporal rules are tagged with a specific `mechanism: 'temporal_causation'` to allow future query engines to treat them distinctly from `transform` deduplications.
 **Consequences:** The system's meta-learning is vastly less noisy and far more semantically pure. Vector clustering operates on mathematically matched spaces without cross-contamination.
+
+## 2024-05-18 - [⬡ Carbo] - [Dataset Schema Guide]
+**Context:** The modular dataset architecture introduces complexity for users attempting to manually craft new rules or observations.
+**Decision:** Crafted `PANDUAN_DATASET.md` containing schema definitions, semantic linking rules, and YAML templates for each core component (`vocab.yaml`, `observations.yaml`, `reasoning_patterns.yaml`). Emphasized the distinction between deductive transforms and temporal causation tags.
+**Consequences:** Curators can safely build and extend the AI's core logic safely without triggering schema validation errors or polluting the topological space.
