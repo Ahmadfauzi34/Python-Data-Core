@@ -1,18 +1,18 @@
 reasoning_patterns:
 - id: r1
-  name: causal_eat_happy
+  name: causal_eat_full
   premise:
     predikat: makan
   conclusion:
-    atribut: senang
+    atribut: kenyang
   mechanism: transform
-  confidence: 0.75
-  explanation: makan mengakibatkan senang
+  confidence: 0.85
+  explanation: makan mengakibatkan kenyang
 - id: r2
   name: causal_rain_wet
   premise:
     predikat: turun
-    agen: hujan
+    pasien: hujan
   conclusion:
     atribut: basah
   mechanism: transform
@@ -46,17 +46,6 @@ reasoning_patterns:
   mechanism: association
   confidence: 0.6
   explanation: potong biasanya pakai gergaji
-- id: r6
-  name: entailment_communication
-  premise:
-    predikat: katakan
-    agen: guru
-  conclusion:
-    predikat: dengar
-    agen: murid
-  mechanism: role_swap
-  confidence: 0.7
-  explanation: guru mengatakan murid mendengar
 - id: r7
   name: causal_read_smart
   premise:
@@ -84,3 +73,70 @@ reasoning_patterns:
   mechanism: association
   confidence: 0.9
   explanation: laboratorium berada di dalam sekolah
+- id: r10
+  name: causal_sell_rich
+  premise:
+    predikat: jual
+    atribut: mahal
+  conclusion:
+    atribut: kaya
+  mechanism: transform
+  confidence: 0.8
+  explanation: menjual barang mahal bisa membuat menjadi kaya
+- id: r11
+  name: association_singer_guitar
+  premise:
+    agen: penyanyi
+  conclusion:
+    instrumen: gitar
+  mechanism: association
+  confidence: 0.7
+  explanation: penyanyi sering berasosiasi dengan gitar
+- id: r12
+  name: spatial_cow_mountain
+  premise:
+    agen: sapi
+    predikat: makan
+  conclusion:
+    pasien: rumput
+  mechanism: transform
+  confidence: 0.9
+  explanation: sapi makan rumput
+- id: r13
+  name: causal_run_fast
+  premise:
+    predikat: lari
+  conclusion:
+    atribut: cepat
+  mechanism: transform
+  confidence: 0.9
+  explanation: lari mengakibatkan cepat
+- id: r14
+  name: causal_sleep_calm
+  premise:
+    predikat: tidur
+  conclusion:
+    atribut: tenang
+  mechanism: transform
+  confidence: 0.8
+  explanation: tidur mengakibatkan tenang
+- id: r15
+  name: antonym_hot_cold
+  premise:
+    atribut: panas
+  conclusion:
+    atribut: dingin
+  mechanism: transform
+  confidence: 1.0
+  explanation: panas adalah lawan dingin
+  invert: true
+- id: r16
+  name: antonym_clean_dirty
+  premise:
+    atribut: bersih
+  conclusion:
+    atribut: kotor
+  mechanism: transform
+  confidence: 1.0
+  explanation: bersih adalah lawan kotor
+  invert: true

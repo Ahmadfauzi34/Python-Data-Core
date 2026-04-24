@@ -12,9 +12,9 @@ observations:
   bindings:
     agen: guru
     predikat: tulis
-    lokasi: papan
-    atribut: putih
+    pasien: papan
     instrumen: kapur
+    atribut: putih
 - id: o3
   type: event
   bindings:
@@ -44,8 +44,7 @@ observations:
     agen: kucing
     predikat: tidur
     lokasi: bawah
-    pasien: meja
-    atribut: besar
+    atribut: tenang
 - id: o7
   type: event
   bindings:
@@ -112,7 +111,51 @@ observations:
 - id: o15
   type: event
   bindings:
-    agen: hujan
+    agen: awan
     predikat: turun
+    pasien: hujan
     lokasi: luar
-    waktu: sekarang
+- id: o16
+  type: event
+  bindings:
+    agen: penulis
+    predikat: beli
+    pasien: buku
+    lokasi: perpustakaan
+    atribut: kaya
+- id: o17
+  type: event
+  bindings:
+    agen: kuda
+    predikat: lari
+    lokasi: pantai
+    atribut: cepat
+- id: o18
+  type: event
+  bindings:
+    agen: penyanyi
+    predikat: bawa
+    pasien: gitar
+    lokasi: taman
+- id: o19
+  type: event
+  bindings:
+    agen: sapi
+    predikat: makan
+    pasien: rumput
+    lokasi: gunung
+- id: o20
+  type: event
+  bindings:
+    agen: pelukis
+    predikat: jual
+    pasien: lukisan
+    lokasi: pasar
+    atribut: mahal
+- id: o21
+  type: event
+  bindings:
+    agen: gajah
+    predikat: jalan
+    lokasi: taman
+    atribut: besar

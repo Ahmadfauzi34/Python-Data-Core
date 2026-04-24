@@ -126,3 +126,8 @@
 **Context:** When initializing the FHRR system, the `loader.py` script crashed with an `AttributeError: 'NoneType' object has no attribute 'setdefault'`. This occurred because a user's modular YAML file contained an empty `vocab:` key. The YAML parser converted this empty key to Python's `None`, causing chained `.setdefault()` operations to fail.
 **Decision:** Patched `fhrr_project/data/loader.py` to add an explicit safeguard: `if data.get("vocab") is None: data["vocab"] = {}`. This ensures the dictionary traversal is strictly operating on valid dict objects even if the source YAML contains empty root keys.
 **Consequences:** The system is now robust against partially populated or mistakenly empty YAML files during initialization.
+
+## 2024-04-24 - [⬡ Carbo] - Dataset Modernization
+**Context:** Integrated external dataset from `Python-Data-Core`. The raw external `vocab.yaml` contained nested dictionaries which triggered schema validation errors and prevented proper engine tokenization.
+**Decision:** Implemented an architectural fix to the external dataset format: extracted nested polar adjectives into a dedicated `poles` section and flattened the rest into valid category lists. Also statically injected implicitly referenced tokens into `kata_sifat`.
+**Consequences:** The data is now robustly typed and avoids the schema validator throwing `ValueError`. Test suite remains fully operational. No negative performance impact since validation runs only during load.

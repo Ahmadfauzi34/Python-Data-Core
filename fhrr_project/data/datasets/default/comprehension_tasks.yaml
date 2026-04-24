@@ -65,3 +65,31 @@ comprehension_tasks:
   - lokasi
   inference_needed: true
   inference_rule: r9
+- id: c8
+  context: o20
+  question: apakah pelukis menjadi kaya?
+  expected_answer: ya
+  required_bindings:
+  - agen
+  - predikat
+  inference_needed: true
+  inference_rule: r10
+- id: c9
+  context: o18
+  question: apakah penyanyi membawa gitar?
+  expected_answer: ya
+  required_bindings:
+  - agen
+  - predikat
+  - pasien
+  inference_needed: false
+- id: c10
+  context: o19
+  question: apakah sapi makan rumput?
+  expected_answer: ya
+  required_bindings:
+  - agen
+  - predikat
+  - pasien
+  inference_needed: true
+  inference_rule: r12

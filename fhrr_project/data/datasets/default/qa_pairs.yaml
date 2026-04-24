@@ -71,3 +71,28 @@ qa_pairs:
   answer_role: lokasi
   source: o12
   reasoning: cari lokasi dari aksi baca oleh dosen
+- id: qa10
+  question: di mana penulis membeli buku?
+  q_focus:
+  - agen
+  - predikat
+  - pasien
+  answer_role: lokasi
+  source: o16
+  reasoning: cari lokasi dari aksi beli oleh penulis
+- id: qa11
+  question: apa yang dibawa penyanyi?
+  q_focus:
+  - agen
+  - predikat
+  answer_role: pasien
+  source: o18
+  reasoning: cari pasien dari aksi bawa oleh penyanyi
+- id: qa12
+  question: siapa yang lari di pantai?
+  q_focus:
+  - predikat
+  - lokasi
+  answer_role: agen
+  source: o17
+  reasoning: cari agen dari aksi lari di pantai
