@@ -21,7 +21,8 @@ class MetaCognitiveConsolidator:
         self.engine = engine
         self.dataset_dir = dataset_dir
         self.min_cluster_size = 2
-        self.similarity_threshold = 0.35 # Lowered to allow contextual drift in temporal causation
+        self.similarity_threshold_explicit = 0.85
+        self.similarity_threshold_temporal = 0.35
 
     def extract_transformations(self) -> List[Dict]:
         """
@@ -38,7 +39,8 @@ class MetaCognitiveConsolidator:
                 transformations.append({
                     'from': record['from'],
                     'to': record['to'],
-                    'vector': self.engine.transforms[record['name']]['vector']
+                    'vector': self.engine.transforms[record['name']]['vector'],
+                    'source': 'explicit'
                 })
 
         # 2. Temporal Episodic Causation (Unsupervised Sequence Learning)
@@ -61,14 +63,14 @@ class MetaCognitiveConsolidator:
                     bind2 = meta2.get('bindings', {})
 
                     if bind1 and bind2:
-                        # Extract primary semantic triggers.
-                        # We use Predikat as the primary driver. If missing, fallback to Agen or Pasien
-                        t1_focus = bind1.get('predikat') or bind1.get('agen')
-                        t2_focus = bind2.get('predikat') or bind2.get('pasien') or bind2.get('lokasi')
+                        # Strict Predicate-Causation Focus Extraction
+                        # We only induce temporal causation if we can clearly identify a predicate-to-predicate
+                        # (or predicate-to-attribute) sequence. Prevents asymmetric noise ("turun" -> "tanah").
+                        t1_focus = bind1.get('predikat')
+                        t2_focus = bind2.get('predikat') or bind2.get('atribut')
 
                         if t1_focus and t2_focus and t1_focus != t2_focus:
                             # FHRR Phase Difference: T_causal = Event_{t+1} ⊘ Event_t
-                            # which in phase form is: (v2 - v1 + pi) % 2pi - pi
                             v1 = ep1['vector']
                             v2 = ep2['vector']
                             diff_vec = (v2 - v1 + np.pi) % (2 * np.pi) - np.pi
@@ -76,28 +78,19 @@ class MetaCognitiveConsolidator:
                             transformations.append({
                                 'from': t1_focus,
                                 'to': t2_focus,
-                                'vector': diff_vec
+                                'vector': diff_vec,
+                                'source': 'temporal'
                             })
-
-        # DEBUG
-        # print("Extracted Transformations:", len(transformations))
 
         return transformations
 
-    def consolidate(self) -> List[Dict]:
-        """
-        Mengelompokkan vektor-vektor transformasi. Jika banyak transformasi
-        memiliki arah vektor (phase diff) yang mirip, ini mengindikasikan
-        sebuah "Hukum Semantik" (Semantic Law) yang konsisten.
-        """
-        transforms = self.extract_transformations()
-        if not transforms:
+    def _cluster_pool(self, pool: List[Dict], threshold: float, mechanism_tag: str) -> List[Dict]:
+        if not pool:
             return []
 
-        n = len(transforms)
-        vectors = np.stack([t['vector'] for t in transforms])
+        n = len(pool)
+        vectors = np.stack([t['vector'] for t in pool])
 
-        # O(N^2) Vectorized clustering (using trig identity for FHRR sim)
         C = np.cos(vectors)
         S = np.sin(vectors)
         sim_mat = (C @ C.T + S @ S.T) / self.engine.dim
@@ -111,34 +104,27 @@ class MetaCognitiveConsolidator:
 
             cluster_indices = [i]
             for j in range(i + 1, n):
-                if j not in visited and sim_mat[i, j] >= self.similarity_threshold:
+                if j not in visited and sim_mat[i, j] >= threshold:
                     cluster_indices.append(j)
-                # print(f"Sim {i}-{j}:", sim_mat[i, j])
 
-            # print("Cluster size:", len(cluster_indices), cluster_indices)
             if len(cluster_indices) >= self.min_cluster_size:
                 visited.update(cluster_indices)
 
-                # Ekstrak rule
-                evidence = [transforms[idx] for idx in cluster_indices]
-
+                evidence = [pool[idx] for idx in cluster_indices]
                 from_tokens = [e['from'] for e in evidence]
                 to_tokens = [e['to'] for e in evidence]
 
-                # True majority voting
                 from_majority = max(set(from_tokens), key=from_tokens.count)
                 to_majority = max(set(to_tokens), key=to_tokens.count)
 
                 rule_name = f"auto_induced_{from_majority}_{to_majority}"
 
-                # Calculate confidence by excluding the diagonal (i == j)
                 other_indices = [j for j in cluster_indices if j != i]
                 if other_indices:
                     conf = float(round(np.mean([sim_mat[i, j] for j in other_indices]), 3))
                 else:
-                    conf = 1.0 # Fallback should not happen if min_cluster_size >= 2
+                    conf = 1.0
 
-                # Semantic signature for deduplication
                 semantic_signature = f"premise:predikat={from_majority}|conclusion:atribut={to_majority}"
 
                 new_rule = {
@@ -147,14 +133,13 @@ class MetaCognitiveConsolidator:
                     'semantic_signature': semantic_signature,
                     'premise': {'predikat': from_majority},
                     'conclusion': {'atribut': to_majority},
-                    'mechanism': 'transform',
+                    'mechanism': mechanism_tag,
                     'confidence': conf,
-                    'explanation': f"Auto-induced from {len(evidence)} episodic similarities."
+                    'explanation': f"Auto-induced from {len(evidence)} {mechanism_tag} similarities."
                 }
 
                 induced_rules.append(new_rule)
 
-                # Daftarkan ke memori aktif mesin
                 # add_rule requires valid roles to exist in the engine.
                 for role in new_rule['premise'].keys():
                     if role not in self.engine.role_names:
@@ -168,6 +153,27 @@ class MetaCognitiveConsolidator:
                 )
 
         return induced_rules
+
+    def consolidate(self) -> List[Dict]:
+        """
+        Mengelompokkan vektor-vektor transformasi dengan memisahkan pool
+        sumber eksplisit dan sumber kausalitas temporal untuk menghindari noise.
+        """
+        transforms = self.extract_transformations()
+        if not transforms:
+            return []
+
+        # Split pools
+        pool_explicit = [t for t in transforms if t.get('source') == 'explicit']
+        pool_temporal = [t for t in transforms if t.get('source') == 'temporal']
+
+        induced_rules = []
+        induced_rules.extend(self._cluster_pool(pool_explicit, self.similarity_threshold_explicit, 'transform'))
+        induced_rules.extend(self._cluster_pool(pool_temporal, self.similarity_threshold_temporal, 'temporal_causation'))
+
+        return induced_rules
+
+
 
     def persist_rules_to_dataset(self, new_rules: List[Dict]):
         """

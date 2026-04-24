@@ -106,3 +106,17 @@
 **Context:** Following massive architectural upgrades including temporal causality, self-supervised discovery, simulation spaces, and heuristic text parsing, the complexity of maintaining the codebase (and the datasets) increased significantly.
 **Decision:** Crafted `PANDUAN_SISTEM.md`, a holistic guide detailing the Cognitive Workflow (how the modules interact), Data Maintenance protocols (human curation vs `.auto.yaml` induction, and specific rollback procedures to revert AI hallucinations), and Tuning recommendations (similarity thresholds and stopword management).
 **Consequences:** Operational transparency is maximized, ensuring the user or any future maintainer understands how to govern the AI's autonomy effectively.
+
+## 2024-05-18 - [⬡ Carbo] - [Securing Consolidation Semantics]
+**Context:** Review feedback indicated that clustering explicit deductive transforms and temporal causal phase differences together under a single dropped threshold (0.35) risked generating noisy rules. Also, extracting causal rules from generic patients or locations (asymmetric fallback) led to nonsensical semantic assertions. Furthermore, `SimulationSpace` was violating encapsulation by calling private engine dicts.
+**Decision:**
+1. `FHRREngine` now provides a clean public `get_token_idx` accessor.
+2. `MetaCognitiveConsolidator` now tags the source of transformations (`explicit` vs `temporal`) and splits them into distinct clustering pools with separate similarity thresholds (0.85 for deductive math, 0.35 for temporal drift).
+3. Extracting temporal causation is now strictly limited to `predikat`-to-`predikat/atribut` mappings.
+4. Auto-induced temporal rules are tagged with a specific `mechanism: 'temporal_causation'` to allow future query engines to treat them distinctly from `transform` deduplications.
+**Consequences:** The system's meta-learning is vastly less noisy and far more semantically pure. Vector clustering operates on mathematically matched spaces without cross-contamination.
+
+## 2024-05-18 - [⬡ Carbo] - [Dataset Schema Guide]
+**Context:** The modular dataset architecture introduces complexity for users attempting to manually craft new rules or observations.
+**Decision:** Crafted `PANDUAN_DATASET.md` containing schema definitions, semantic linking rules, and YAML templates for each core component (`vocab.yaml`, `observations.yaml`, `reasoning_patterns.yaml`). Emphasized the distinction between deductive transforms and temporal causation tags.
+**Consequences:** Curators can safely build and extend the AI's core logic safely without triggering schema validation errors or polluting the topological space.

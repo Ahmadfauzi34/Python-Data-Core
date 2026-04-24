@@ -50,7 +50,6 @@ class TemporalCausationTests(unittest.TestCase):
         self.engine.store_episodic(v4, metadata={'timestamp': t0 + 11, 'bindings': {'agen': 'jalanan', 'predikat': 'basah'}})
 
         trans = self.consolidator.extract_transformations()
-        print('Trans extracted:', len(trans))
         rules = self.consolidator.consolidate()
 
         self.assertGreaterEqual(len(rules), 1)
