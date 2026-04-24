@@ -21,7 +21,7 @@ class MetaCognitiveConsolidator:
         self.engine = engine
         self.dataset_dir = dataset_dir
         self.min_cluster_size = 2
-        self.similarity_threshold = 0.85
+        self.similarity_threshold = 0.35 # Lowered to allow contextual drift in temporal causation
 
     def extract_transformations(self) -> List[Dict]:
         """
@@ -30,13 +30,9 @@ class MetaCognitiveConsolidator:
         Contoh: "Budi makan -> Budi kenyang".
         Vektor Transformasi T = Kenyang ⊘ Makan.
         """
-        # Simplify: We look at the engine's learned transforms history or episodic buffer pairs.
-        # For an advanced implementation, we scan the engine.learned_transforms_history
-        # or we actively extract diffs from sequential episodic memories.
-
         transformations = []
 
-        # Iterating over the history of explicitly learned one-off transforms
+        # 1. Iterating over the history of explicitly learned one-off transforms
         if hasattr(self.engine, 'learned_transforms_history'):
             for record in self.engine.learned_transforms_history:
                 transformations.append({
@@ -44,6 +40,47 @@ class MetaCognitiveConsolidator:
                     'to': record['to'],
                     'vector': self.engine.transforms[record['name']]['vector']
                 })
+
+        # 2. Temporal Episodic Causation (Unsupervised Sequence Learning)
+        # Scan the episodic buffer, sort chronologically, and extract phase diffs between t and t+1
+        if hasattr(self.engine, 'episodic_buffer') and len(self.engine.episodic_buffer) > 1:
+            # Sort episodes by timestamp
+            episodes = sorted(self.engine.episodic_buffer, key=lambda x: x.get('timestamp', 0))
+
+            for i in range(len(episodes) - 1):
+                ep1 = episodes[i]
+                ep2 = episodes[i+1]
+
+                # Check if they happened relatively close to each other (e.g. same document ingest session)
+                time_diff = ep2.get('timestamp', 0) - ep1.get('timestamp', 0)
+                # If they are within 60 seconds of each other, assume potential causation
+                if 0 <= time_diff <= 60.0:
+                    meta1 = ep1.get('metadata', {})
+                    meta2 = ep2.get('metadata', {})
+                    bind1 = meta1.get('bindings', {})
+                    bind2 = meta2.get('bindings', {})
+
+                    if bind1 and bind2:
+                        # Extract primary semantic triggers.
+                        # We use Predikat as the primary driver. If missing, fallback to Agen or Pasien
+                        t1_focus = bind1.get('predikat') or bind1.get('agen')
+                        t2_focus = bind2.get('predikat') or bind2.get('pasien') or bind2.get('lokasi')
+
+                        if t1_focus and t2_focus and t1_focus != t2_focus:
+                            # FHRR Phase Difference: T_causal = Event_{t+1} ⊘ Event_t
+                            # which in phase form is: (v2 - v1 + pi) % 2pi - pi
+                            v1 = ep1['vector']
+                            v2 = ep2['vector']
+                            diff_vec = (v2 - v1 + np.pi) % (2 * np.pi) - np.pi
+
+                            transformations.append({
+                                'from': t1_focus,
+                                'to': t2_focus,
+                                'vector': diff_vec
+                            })
+
+        # DEBUG
+        # print("Extracted Transformations:", len(transformations))
 
         return transformations
 
@@ -76,7 +113,9 @@ class MetaCognitiveConsolidator:
             for j in range(i + 1, n):
                 if j not in visited and sim_mat[i, j] >= self.similarity_threshold:
                     cluster_indices.append(j)
+                # print(f"Sim {i}-{j}:", sim_mat[i, j])
 
+            # print("Cluster size:", len(cluster_indices), cluster_indices)
             if len(cluster_indices) >= self.min_cluster_size:
                 visited.update(cluster_indices)
 

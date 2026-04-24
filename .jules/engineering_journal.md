@@ -92,3 +92,8 @@
 3. Patched `fhrr_project/agents/simulation.py` to use `_token_name_to_idx.get()` instead of the deprecated method.
 4. Expanded unit tests (`test_simulation.py`, `test_consolidation.py`) to actively mock and assert these topological checks and agent context propagations.
 **Consequences:** The entire FHRR cognitive AI suite—from the mathematical vector layer, to the semantic ingestion and simulation middleware, up to the frontend UI—is now fully functional, test-covered, and immune to stale state bugs.
+
+## 2024-05-18 - [⬡ Carbo] - [Temporal Episodic Causation]
+**Context:** The `MetaCognitiveConsolidator` could only induce rules from explicitly registered one-off transforms. To achieve true autonomy, the AI must learn causal semantic laws passively by observing the passage of time (e.g., observing "Hujan turun", then "Tanah basah").
+**Decision:** Enhanced `fhrr_project/agents/text_ingestor.py` to bake semantic bindings explicitly into the metadata of the `EpisodicBuffer`. Refactored `extract_transformations` to scan the episodic buffer chronologically. If two events happen within 60 seconds, the agent calculates their FHRR phase difference vector `(v2 - v1 + np.pi) % (2*np.pi) - np.pi`. I lowered the similarity threshold slightly to 0.35 to account for "contextual drift" (e.g., the difference between "tanah" and "jalanan" in different contexts).
+**Consequences:** The agent can now passively read a story or sequence of unstructured text, and during its "Sleep Phase", automatically extract the implicit physics or laws of that story by recognizing repeated temporal vector geometries.

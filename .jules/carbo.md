@@ -93,3 +93,11 @@
 3. Patched `fhrr_project/agents/simulation.py` to use `_token_name_to_idx.get()` instead of the deprecated method.
 4. Expanded unit tests (`test_simulation.py`, `test_consolidation.py`) to actively mock and assert these topological checks and agent context propagations.
 **Consequences:** The entire FHRR cognitive AI suite—from the mathematical vector layer, to the semantic ingestion and simulation middleware, up to the frontend UI—is now fully functional, test-covered, and immune to stale state bugs.
+
+## 2024-05-18 - [⬡ Carbo] - [Temporal Episodic Causation]
+**Vision:** Passive Unsupervised Learning of Causal Laws. The agent should learn that A causes B simply by observing that Event A is consistently followed by Event B in the episodic timeline.
+**Architecture:**
+1. **Metadata Enrichment:** Text ingestion now stores `bindings` inside the episodic memory footprint.
+2. **Temporal Delta:** The consolidator chronologically sorts memory and extracts phase differences ($T_{causal} = Event_{t+1} \oslash Event_t$) for events occurring closely together (< 60 seconds).
+3. **Clustering Tolerance:** The similarity threshold was adjusted to 0.35 to allow for contextual variance (e.g. "hujan -> tanah basah" vs "hujan -> jalanan basah").
+**Consequences:** The agent no longer requires explicit teaching to learn relationships; it induces causal laws from sequential text processing alone.
