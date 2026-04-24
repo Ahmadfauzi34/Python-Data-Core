@@ -101,3 +101,8 @@
 2. **Temporal Delta:** The consolidator chronologically sorts memory and extracts phase differences ($T_{causal} = Event_{t+1} \oslash Event_t$) for events occurring closely together (< 60 seconds).
 3. **Clustering Tolerance:** The similarity threshold was adjusted to 0.35 to allow for contextual variance (e.g. "hujan -> tanah basah" vs "hujan -> jalanan basah").
 **Consequences:** The agent no longer requires explicit teaching to learn relationships; it induces causal laws from sequential text processing alone.
+
+## 2024-05-18 - [⬡ Carbo] - [System Operations Guide]
+**Context:** Following massive architectural upgrades including temporal causality, self-supervised discovery, simulation spaces, and heuristic text parsing, the complexity of maintaining the codebase (and the datasets) increased significantly.
+**Decision:** Crafted `PANDUAN_SISTEM.md`, a holistic guide detailing the Cognitive Workflow (how the modules interact), Data Maintenance protocols (human curation vs `.auto.yaml` induction, and specific rollback procedures to revert AI hallucinations), and Tuning recommendations (similarity thresholds and stopword management).
+**Consequences:** Operational transparency is maximized, ensuring the user or any future maintainer understands how to govern the AI's autonomy effectively.
