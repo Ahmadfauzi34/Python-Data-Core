@@ -121,3 +121,8 @@
 **Context:** When the user attempted to use the "👁️ Simulasi Sandbox" button in the UI, the application crashed with `ValueError: Failed to encode current state bindings`. This occurred because the UI hardcoded the mock initial state to `{"agen": "user", "aksi": "tunggu"}`, which are tokens that do not exist in the loaded dataset vocabulary.
 **Decision:** Updated `main.py` so that the UI provides dynamic input fields for the Sandbox's "State Saat Ini". Changed the default placeholder tokens to "budi" and "makan", which are guaranteed to exist in the `default` dataset's `vocab.yaml`. Refactored `SimulationSpace.commit` to gracefully support both legacy `aksi/target` keys and schema-compliant `predikat/pasien` keys.
 **Consequences:** The Sandbox Simulation feature in the UI is fully functional and will no longer crash due to unencoded vectors, provided the user enters valid vocabulary tokens.
+
+## 2024-05-18 - [⬡ Carbo] - [Fix AttributeError in Dataset Loader]
+**Context:** When initializing the FHRR system, the `loader.py` script crashed with an `AttributeError: 'NoneType' object has no attribute 'setdefault'`. This occurred because a user's modular YAML file contained an empty `vocab:` key. The YAML parser converted this empty key to Python's `None`, causing chained `.setdefault()` operations to fail.
+**Decision:** Patched `fhrr_project/data/loader.py` to add an explicit safeguard: `if data.get("vocab") is None: data["vocab"] = {}`. This ensures the dictionary traversal is strictly operating on valid dict objects even if the source YAML contains empty root keys.
+**Consequences:** The system is now robust against partially populated or mistakenly empty YAML files during initialization.
