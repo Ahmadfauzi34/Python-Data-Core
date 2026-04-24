@@ -134,7 +134,11 @@ class SimulationSpace:
         self.main_engine.store_episodic(scenario.resulting_state, metadata=scenario.metadata)
 
         # If KG ingestor is provided, commit the action if it resembles a valid triple
-        if kg_ingestor and 'aksi' in scenario.action_bindings and 'target' in scenario.action_bindings:
+        # Support both the old mock names ('aksi', 'target') and the standard schema names ('predikat', 'pasien')
+        predicate = scenario.action_bindings.get('predikat') or scenario.action_bindings.get('aksi')
+        target = scenario.action_bindings.get('pasien') or scenario.action_bindings.get('target')
+
+        if kg_ingestor and predicate and target:
             # We assume agent identity is preserved from base state (simplification)
             try:
                 from fhrr_project.memory.knowledge_graph import KGTriple
@@ -143,8 +147,8 @@ class SimulationSpace:
 
                 triple = KGTriple(
                     subject=agent_id,
-                    predicate=scenario.action_bindings['aksi'],
-                    object=scenario.action_bindings['target'],
+                    predicate=predicate,
+                    object=target,
                     metadata={"source": "simulation_commit"}
                 )
                 kg_ingestor.ingest_triple(triple)

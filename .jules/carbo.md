@@ -120,3 +120,8 @@
 **Context:** The modular dataset architecture introduces complexity for users attempting to manually craft new rules or observations.
 **Decision:** Crafted `PANDUAN_DATASET.md` containing schema definitions, semantic linking rules, and YAML templates for each core component (`vocab.yaml`, `observations.yaml`, `reasoning_patterns.yaml`). Emphasized the distinction between deductive transforms and temporal causation tags.
 **Consequences:** Curators can safely build and extend the AI's core logic safely without triggering schema validation errors or polluting the topological space.
+
+## 2024-05-18 - [⬡ Carbo] - [Fix Simulation Sandbox UI Default Vocab]
+**Context:** When the user attempted to use the "👁️ Simulasi Sandbox" button in the UI, the application crashed with `ValueError: Failed to encode current state bindings`. This occurred because the UI hardcoded the mock initial state to `{"agen": "user", "aksi": "tunggu"}`, which are tokens that do not exist in the loaded dataset vocabulary.
+**Decision:** Updated `main.py` so that the UI provides dynamic input fields for the Sandbox's "State Saat Ini". Changed the default placeholder tokens to "budi" and "makan", which are guaranteed to exist in the `default` dataset's `vocab.yaml`. Refactored `SimulationSpace.commit` to gracefully support both legacy `aksi/target` keys and schema-compliant `predikat/pasien` keys.
+**Consequences:** The Sandbox Simulation feature in the UI is fully functional and will no longer crash due to unencoded vectors, provided the user enters valid vocabulary tokens.

@@ -98,30 +98,45 @@ with st.sidebar:
                 st.session_state['pending_rules'] = []
 
     with st.expander("👁️ Simulasi Sandbox", expanded=False):
-        st.write("Proyeksi tindakan sebelum bertindak.")
-        sim_goal = st.text_input("Goal (Aksi yang diinginkan)", value="sapa")
+        st.write("Proyeksi tindakan sebelum bertindak. (Gunakan kata di vocab)")
+
+        st.caption("State Saat Ini")
+        col_c1, col_c2 = st.columns(2)
+        with col_c1:
+            curr_agen = st.text_input("Agen Saat Ini", value="budi")
+        with col_c2:
+            curr_aksi = st.text_input("Aksi Saat Ini", value="makan")
+
+        st.caption("Proyeksi Simulasi")
+        sim_goal = st.text_input("Goal (Aksi yang diinginkan)", value="minum")
         col1, col2 = st.columns(2)
         with col1:
-            act_1 = st.text_input("Opsi Aksi 1", value="sapa")
-            act_1_tgt = st.text_input("Target Aksi 1 (Opsional)", value="budi")
+            act_1 = st.text_input("Opsi Aksi 1", value="minum")
+            act_1_tgt = st.text_input("Target Aksi 1 (Opsional)", value="air")
         with col2:
-            act_2 = st.text_input("Opsi Aksi 2", value="marah")
-            act_2_tgt = st.text_input("Target Aksi 2 (Opsional)", value="budi")
+            act_2 = st.text_input("Opsi Aksi 2", value="tidur")
+            act_2_tgt = st.text_input("Target Aksi 2 (Opsional)", value="")
 
         if st.button("Jalankan Simulasi", use_container_width=True):
             with st.spinner("Menjalankan proyeksi..."):
-                scen_1 = {"aksi": act_1}
-                if act_1_tgt: scen_1["target"] = act_1_tgt
+                try:
+                    scen_1 = {"predikat": act_1}
+                    if act_1_tgt: scen_1["pasien"] = act_1_tgt
 
-                scen_2 = {"aksi": act_2}
-                if act_2_tgt: scen_2["target"] = act_2_tgt
+                    scen_2 = {"predikat": act_2}
+                    if act_2_tgt: scen_2["pasien"] = act_2_tgt
 
-                best_id, best_bindings = api.runner.simulate_and_commit(
-                    action_scenarios=[scen_1, scen_2],
-                    goal={"aksi": sim_goal},
-                    current_state={"agen": "user", "aksi": "tunggu"}
-                )
-                st.success(f"Skenario terpilih: {best_id} -> {best_bindings}")
+                    best_id, best_bindings = api.runner.simulate_and_commit(
+                        action_scenarios=[scen_1, scen_2],
+                        goal={"predikat": sim_goal},
+                        current_state={"agen": curr_agen, "predikat": curr_aksi}
+                    )
+                    if best_id:
+                        st.success(f"Skenario terpilih: {best_id} -> {best_bindings}")
+                    else:
+                        st.warning("Simulasi gagal mengekstrak skenario.")
+                except ValueError as e:
+                    st.error(f"Error: Kata mungkin tidak ada di vocab. Detail: {e}")
 
 # -----------------------------------------------------------------------------
 # UI
