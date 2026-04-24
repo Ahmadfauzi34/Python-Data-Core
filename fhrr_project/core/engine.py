@@ -150,6 +150,9 @@ class FHRREngine:
             self.lsh_tables[t][bin_idx].append(idx)
         return vec
 
+    def get_token_idx(self, name: str) -> Optional[int]:
+        return self._token_name_to_idx.get(name)
+
     def get_token(self, name: str) -> Optional[np.ndarray]:
         idx = self._token_name_to_idx.get(name)
         if idx is not None:

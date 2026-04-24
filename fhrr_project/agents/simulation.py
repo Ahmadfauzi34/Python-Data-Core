@@ -95,7 +95,7 @@ class SimulationSpace:
                 # Check consistency
                 assignment = {}
                 for role, (filler, conf) in decoded.items():
-                    tok_idx = self.main_engine._token_name_to_idx.get(filler)
+                    tok_idx = self.main_engine.get_token_idx(filler)
                     if tok_idx is not None:
                         cat = self.main_engine.token_categories[tok_idx]
                         assignment[cat] = self.main_engine.token_phases[tok_idx]
