@@ -139,3 +139,8 @@
 **Context:** During review, the user provided a revised set of QA and comprehension pairs to align with recent observations.
 **Decision:** Updated `qa_pairs.yaml` and `comprehension_tasks.yaml` using a python YAML dump script to ensure correct schema.
 **Consequences:** Datasets perfectly reflect the user's latest required semantic tests, and `pytest` confirms 100% test passing against the updated schema.
+
+## 2024-05-18 - [⬡ Carbo] - [Fix Text Ingestion UI Feature]
+**Context:** Added a requested UI feature to ingest unstructured text directly via Streamlit. However, clicking the button crashed the app due to `AttributeError: 'NoneType' object has no attribute 'ingest_document'`.
+**Decision:** Updated `main.py`'s `init_fhrr_system` function to explicitly call `runner.attach_kg(kg)`, which appropriately provisions the required `TextIngestorBlueprint` inside `FHRRResearchRunner`.
+**Consequences:** Users can now safely use the text ingestion UI widget to dynamically inject plain text into the system's short-term RAM buffers without encountering an uninitialized module error.

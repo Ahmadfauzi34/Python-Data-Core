@@ -21,6 +21,9 @@ def init_fhrr_system(dataset_name: str, dim: int = 4096):
     kg = KnowledgeGraphIngestor(runner.engine, open_vocab)
     n_triples = ingest_dataset_to_kg(kg, dataset)
 
+    # Missing from original initialization
+    runner.attach_kg(kg)
+
     discoverer = SelfSupervisedDiscovery(runner.engine, window_size=3)
     topo = FHRRTopologicalLayer(runner.engine)
     runner.attach_topology(topo)
@@ -75,6 +78,21 @@ with st.sidebar:
     st.metric("Observation", len(dataset.get("observations", [])))
     st.metric("QA pairs", len(dataset.get("qa_pairs", [])))
     st.metric("KG triples", n_triples)
+
+    st.markdown("---")
+    st.subheader("Ingesti Teks Bebas")
+
+    with st.expander("📝 Baca Cerita/Teks", expanded=False):
+        st.write("Masukkan teks bebas untuk diingat oleh agen.")
+        st.caption("Contoh: Budi makan apel di rumah. Ani membaca buku di sekolah.")
+        ingest_text = st.text_area("Teks Bebas", height=100)
+        if st.button("Masukkan ke Memori", use_container_width=True):
+            if ingest_text.strip():
+                with st.spinner("Mengekstrak memori..."):
+                    new_memories = api.runner.ingest_unstructured_text(ingest_text)
+                    st.success(f"{new_memories} memori baru ditambahkan ke RAM!")
+            else:
+                st.warning("Teks tidak boleh kosong.")
 
     st.markdown("---")
     st.subheader("Otonomi Kognitif")
