@@ -144,7 +144,8 @@ class TextIngestorBlueprint:
             encoded_vec = self.engine.encode(bindings)
 
             if encoded_vec is not None:
-                self.engine.store_episodic(encoded_vec, metadata={"source_sentence": sent})
+                # Include bindings in metadata so the MetaCognitiveConsolidator can extract temporal causation rules
+                self.engine.store_episodic(encoded_vec, metadata={"source_sentence": sent, "bindings": bindings})
 
                 # 3. Knowledge Graph Ingestion (Long-term semantic storage)
                 if self.kg and Role.AGEN in bindings and Role.PREDIKAT in bindings and Role.PASIEN in bindings:

@@ -83,3 +83,22 @@
 2. `SimulationSpace` now securely maps and retains `_base_bindings` across the fork, properly feeding the initiating agent ID back into the `KGTriple` during `commit()`.
 3. The UI now triggers `sleep_and_consolidate(dry_run=True)`. Induced rules are previewed in a `st.code` block, requiring the user to explicitly click "Simpan Permanen" before mutating the `.auto.yaml` dataset. The simulation sandbox was un-mocked and now accepts dynamic parameter inputs.
 **Consequences:** System is robust against CI conflicts, agent identity tracking is logically preserved through simulated branching, and the user interface for meta-learning operations is safe and transparent.
+
+## 2024-05-18 - [⬡ Carbo] - [Finalizing Cognitive Architecture & UX]
+**Context:** Following the resolution of major integration bugs, several minor UX and regression safety items needed attention. The Streamlit UI leaked pending auto-rules across datasets due to stale session states. The sandbox UI could not trigger KG commits because it lacked a 'target' parameter. `SimulationSpace` had an undetected `AttributeError` on a legacy method `get_token_idx`.
+**Decision:**
+1. `st.session_state.pop("pending_rules")` added to `main.py` handlers.
+2. Added target parameter fields to the Simulation Mock UI.
+3. Patched `fhrr_project/agents/simulation.py` to use `_token_name_to_idx.get()` instead of the deprecated method.
+4. Expanded unit tests (`test_simulation.py`, `test_consolidation.py`) to actively mock and assert these topological checks and agent context propagations.
+**Consequences:** The entire FHRR cognitive AI suite—from the mathematical vector layer, to the semantic ingestion and simulation middleware, up to the frontend UI—is now fully functional, test-covered, and immune to stale state bugs.
+
+## 2024-05-18 - [⬡ Carbo] - [Temporal Episodic Causation]
+**Context:** The `MetaCognitiveConsolidator` could only induce rules from explicitly registered one-off transforms. To achieve true autonomy, the AI must learn causal semantic laws passively by observing the passage of time (e.g., observing "Hujan turun", then "Tanah basah").
+**Decision:** Enhanced `fhrr_project/agents/text_ingestor.py` to bake semantic bindings explicitly into the metadata of the `EpisodicBuffer`. Refactored `extract_transformations` to scan the episodic buffer chronologically. If two events happen within 60 seconds, the agent calculates their FHRR phase difference vector `(v2 - v1 + np.pi) % (2*np.pi) - np.pi`. I lowered the similarity threshold slightly to 0.35 to account for "contextual drift" (e.g., the difference between "tanah" and "jalanan" in different contexts).
+**Consequences:** The agent can now passively read a story or sequence of unstructured text, and during its "Sleep Phase", automatically extract the implicit physics or laws of that story by recognizing repeated temporal vector geometries.
+
+## 2024-05-18 - [⬡ Carbo] - [System Operations Guide]
+**Context:** Following massive architectural upgrades including temporal causality, self-supervised discovery, simulation spaces, and heuristic text parsing, the complexity of maintaining the codebase (and the datasets) increased significantly.
+**Decision:** Crafted `PANDUAN_SISTEM.md`, a holistic guide detailing the Cognitive Workflow (how the modules interact), Data Maintenance protocols (human curation vs `.auto.yaml` induction, and specific rollback procedures to revert AI hallucinations), and Tuning recommendations (similarity thresholds and stopword management).
+**Consequences:** Operational transparency is maximized, ensuring the user or any future maintainer understands how to govern the AI's autonomy effectively.
