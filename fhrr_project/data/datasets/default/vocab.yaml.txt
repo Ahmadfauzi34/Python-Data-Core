@@ -1,0 +1,440 @@
+vocab:
+  categories:
+    benda_padat:
+    - kaca
+    - benteng
+    - meja
+    - kapur
+    - tembok
+    - emas
+    - buku
+    - perak
+    - gergaji
+    - papan
+    - pintu
+    - kursi
+    - besi
+    - kayu
+    - batu
+    - gelas
+    - piring
+    - sendok
+    - garpu
+    - lukisan
+    benda_cair:
+    - susu
+    - darah
+    - sungai
+    - air
+    - cairan
+    - hujan
+    - madu
+    - minyak
+    benda_energi:
+    - listrik
+    - sinar
+    - petir
+    - api
+    - angin
+    - panas
+    - dingin
+    - cahaya
+    hewan:
+    - lebah
+    - harimau
+    - anjing
+    - kucing
+    - lumba_lumba
+    - ular
+    - ikan
+    - kupu_kupu
+    - gajah
+    - burung
+    - sapi
+    - kambing
+    - ayam
+    - kuda
+    - bebek
+    - angsa
+    tumbuhan:
+    - anggrek
+    - bunga
+    - rumput
+    - kelapa
+    - bambu
+    - padi
+    - mangga
+    - pohon
+    manusia:
+    - dokter
+    - pasien
+    - guru
+    - pemimpin
+    - ibu
+    - murid
+    - rakyat
+    - musuh
+    - orang
+    - teman
+    - anak
+    - ayah
+    konsep:
+    - berani
+    - bahagia
+    - dukacita
+    - takut
+    - kebebasan
+    - keadilan
+    - benci
+    - kebenaran
+    - harapan
+    - cinta
+    - keamanan
+    - putus_asa
+    aksi_fisik:
+    - buka
+    - masak
+    - lompat
+    - tidur
+    - tangkap
+    - lempar
+    - duduk
+    - bangun
+    - tutup
+    - pukul
+    - angkat
+    - terbang
+    - kendarai
+    - jalan
+    - lari
+    - berenang
+    - minum
+    - baca
+    - turun
+    - tulis
+    - tendang
+    - ukir
+    - potong
+    - makan
+    - panjat
+    - dorong
+    - tarik
+    - bawa
+    - beli
+    - jual
+    aksi_komunikasi:
+    - dengar
+    - tanya
+    - jelaskan
+    - puji
+    - pidato
+    - katakan
+    - lihat
+    - baca
+    - peringatkan
+    - tulis
+    - kritik
+    - jawab
+    aksi_sosial:
+    - khianati
+    - tipu
+    - bantu
+    - serang
+    - hina
+    - lindungi
+    - dukung
+    - hormati
+    ukuran:
+    - sempit
+    - besar
+    - kecil
+    - panjang
+    - tinggi
+    - lebar
+    - tebal
+    - pendek
+    - rendah
+    - tipis
+    warna:
+    - putih
+    - hijau
+    - ungu
+    - merah
+    - kuning
+    - coklat
+    - abu
+    - biru
+    - oranye
+    - hitam
+    kualitas:
+    - sulit
+    - indah
+    - mudah
+    - lambat
+    - sakit
+    - kuat
+    - lemah
+    - tajam
+    - baik
+    - cepat
+    - jelek
+    - sehat
+    - buruk
+    emosi:
+    - malu
+    - cemas
+    - bangga
+    - takut
+    - senang
+    - marah
+    - tenang
+    - terkejut
+    - gembira
+    - sedih
+    - jijik
+    keadaan:
+    - jernih
+    - kering
+    - muda
+    - berantakan
+    - terang
+    - gelap
+    - baru
+    - bodoh
+    - lama
+    - bersih
+    - tua
+    - pintar
+    - lapar
+    - basah
+    - dingin
+    - panas
+    - kenyang
+    - kotor
+    - rapi
+    - wangi
+    - bau
+    - mahal
+    - murah
+    - kaya
+    - miskin
+    kecepatan:
+    - tiba_tiba
+    - perlahan
+    - lambat
+    - cepat
+    - fluktuatif
+    - konstan
+    waktu:
+    - malam
+    - pagi
+    - segera
+    - pernah
+    - akhirnya
+    - siang
+    - nanti
+    - selalu
+    - sekarang
+    - besok
+    - kemarin
+    ruang:
+    - belakang
+    - atas
+    - bawah
+    - sana
+    - dalam
+    - sini
+    - depan
+    - dekat
+    - luar
+    - jauh
+    - tengah
+    kuantitas:
+    - sedikit
+    - semua
+    - kosong
+    - penuh
+    - banyak
+    - kurang
+    - cukup
+    - sebagian
+    relasi:
+    - untuk
+    - melalui
+    - sampai
+    - antara
+    - luar
+    - melewati
+    - namun
+    - sebab
+    - sesudah
+    - ketika
+    - sendiri
+    - akibat
+    - dalam
+    - selama
+    - dari
+    - bersama
+    - oleh
+    - dan
+    - meski
+    - karena
+    - jadi
+    - dengan
+    - tetapi
+    - ke
+    - kecuali
+    - walaupun
+    - tanpa
+    - di
+    - jika
+    - sebelum
+    - sejak
+    - maka
+    - milik
+    - bagi
+    - atau
+    tempat:
+    - rumah_sakit
+    - jalan
+    - sekolah
+    - kantor
+    - dapur
+    - restoran
+    - laboratorium
+    - garasi
+    - pasar
+    - kebun
+    - perpustakaan
+    - taman
+    - pantai
+    - gunung
+    - laut
+    makanan:
+    - apel
+    - kue
+    - nasi
+    - roti
+    - sayur
+    - ikan
+    - daging
+    - keju
+    - cokelat
+    - pisang
+    - jeruk
+    kumpulan:
+    - pasukan
+    profesi:
+    - dokter
+    - petani
+    - guru
+    - polisi
+    - dosen
+    - koki
+    - ilmuwan
+    - penulis
+    - pelukis
+    - penyanyi
+    kendaraan:
+    - kereta
+    - mobil
+    - pesawat
+    - sepeda
+    - motor
+    cuaca:
+    - salju
+    - badai
+    - mendung
+    - cerah
+    - hujan
+    instrumen:
+    - payung
+    - buku
+    - pisau
+    - panci
+    - kunci
+    - pena
+    - komputer
+    - kamera
+    - gitar
+    - piano
+  poles:
+    ukuran:
+      positive:
+      - besar
+      - panjang
+      - lebar
+      - tinggi
+      - tebal
+      negative:
+      - kecil
+      - pendek
+      - sempit
+      - rendah
+      - tipis
+    warna:
+      positive:
+      - merah
+      - hijau
+      - hitam
+      - ungu
+      - coklat
+      negative:
+      - biru
+      - kuning
+      - putih
+      - oranye
+      - abu
+    kualitas:
+      positive:
+      - baik
+      - indah
+      - sehat
+      - kuat
+      - cepat
+      - mudah
+      - tajam
+      negative:
+      - buruk
+      - jelek
+      - sakit
+      - lemah
+      - lambat
+      - sulit
+    emosi:
+      positive:
+      - senang
+      - marah
+      - jijik
+      - tenang
+      - cemas
+      - malu
+      negative:
+      - sedih
+      - takut
+      - terkejut
+      - gembira
+      - bangga
+    kecepatan:
+      positive:
+      - cepat
+      - tiba_tiba
+      negative:
+      - lambat
+      - perlahan
+    keadaan:
+      positive:
+      - baru
+      - muda
+      - basah
+      - panas
+      - bersih
+      - rapi
+      - jernih
+      negative:
+      - lama
+      - tua
+      - kering
+      - dingin
+      - kotor
+      - berantakan
