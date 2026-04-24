@@ -124,6 +124,9 @@ def load_dataset(name_or_path: str = "default", *, strict: bool = True) -> dict[
 
     data = merged_data
 
+    if data.get("vocab") is None:
+        data["vocab"] = {}
+
     # Default keys yang opsional jadi list kosong, supaya consumer tidak kena KeyError.
     for k in (
         "observations", "qa_pairs", "reasoning_patterns",
@@ -131,7 +134,9 @@ def load_dataset(name_or_path: str = "default", *, strict: bool = True) -> dict[
         "explanation_templates",
     ):
         data.setdefault(k, [])
-    data.setdefault("vocab", {}).setdefault("categories", {})
+    if data.get("vocab") is None:
+        data["vocab"] = {}
+    data["vocab"].setdefault("categories", {})
     data["vocab"].setdefault("poles", {})
 
     assert_valid(data, strict=strict)
