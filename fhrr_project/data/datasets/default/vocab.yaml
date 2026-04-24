@@ -16,6 +16,11 @@ vocab:
     - besi
     - kayu
     - batu
+    - gelas
+    - piring
+    - sendok
+    - garpu
+    - lukisan
     benda_cair:
     - susu
     - darah
@@ -45,6 +50,12 @@ vocab:
     - kupu_kupu
     - gajah
     - burung
+    - sapi
+    - kambing
+    - ayam
+    - kuda
+    - bebek
+    - angsa
     tumbuhan:
     - anggrek
     - bunga
@@ -105,6 +116,12 @@ vocab:
     - ukir
     - potong
     - makan
+    - panjat
+    - dorong
+    - tarik
+    - bawa
+    - beli
+    - jual
     aksi_komunikasi:
     - dengar
     - tanya
@@ -195,6 +212,12 @@ vocab:
     - kenyang
     - kotor
     - rapi
+    - wangi
+    - bau
+    - mahal
+    - murah
+    - kaya
+    - miskin
     kecepatan:
     - tiba_tiba
     - perlahan
@@ -282,6 +305,11 @@ vocab:
     - garasi
     - pasar
     - kebun
+    - perpustakaan
+    - taman
+    - pantai
+    - gunung
+    - laut
     makanan:
     - apel
     - kue
@@ -290,6 +318,10 @@ vocab:
     - sayur
     - ikan
     - daging
+    - keju
+    - cokelat
+    - pisang
+    - jeruk
     kumpulan:
     - pasukan
     profesi:
@@ -300,6 +332,9 @@ vocab:
     - dosen
     - koki
     - ilmuwan
+    - penulis
+    - pelukis
+    - penyanyi
     kendaraan:
     - kereta
     - mobil
@@ -320,6 +355,9 @@ vocab:
     - kunci
     - pena
     - komputer
+    - kamera
+    - gitar
+    - piano
   poles:
     ukuran:
       positive:
