@@ -503,11 +503,15 @@ class FHRRResearchRunner:
             return best.id, best.action_bindings
         return None, None
 
-    def sleep_and_consolidate(self):
-        """Menjalankan fase tidur (Meta-Learning) untuk mencari aturan baru."""
+    def sleep_and_consolidate(self, dry_run: bool = False) -> List[Dict]:
+        """
+        Menjalankan fase tidur (Meta-Learning) untuk mencari aturan baru.
+        Jika dry_run=True, aturan tidak disimpan permanen ke disk, hanya direturn.
+        """
         new_rules = self.consolidator.consolidate()
-        self.consolidator.persist_rules_to_dataset(new_rules)
-        return len(new_rules)
+        if not dry_run:
+            self.consolidator.persist_rules_to_dataset(new_rules)
+        return new_rules
 
     def ingest_unstructured_text(self, text: str):
         """Memasukkan paragraf teks bebas ke dalam pipeline Text-to-FHRR."""

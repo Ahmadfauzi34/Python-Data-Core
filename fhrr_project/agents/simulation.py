@@ -26,11 +26,13 @@ class SimulationSpace:
         self.scenarios: List[SimulationScenario] = []
         self._base_state: Optional[np.ndarray] = None
         self._goal_state: Optional[np.ndarray] = None
+        self._base_bindings: Dict[str, str] = {}
         self.reward_weight = reward_weight
         self.coherence_weight = coherence_weight
 
     def initialize_state(self, current_state_bindings: Dict[str, str], goal_bindings: Optional[Dict[str, str]] = None):
         """Snapshots the current context to begin a simulation fork."""
+        self._base_bindings = current_state_bindings.copy()
         self._base_state = self.main_engine.encode(current_state_bindings)
         if self._base_state is None:
             raise ValueError("Failed to encode current state bindings")
@@ -136,8 +138,11 @@ class SimulationSpace:
             # We assume agent identity is preserved from base state (simplification)
             try:
                 from fhrr_project.memory.knowledge_graph import KGTriple
+                # Try to extract the agent from the base state, fallback to a generic placeholder if missing
+                agent_id = self._base_bindings.get('agen', 'unknown_agent')
+
                 triple = KGTriple(
-                    subject=self.main_engine.get_token_names()[0], # Fallback simplification
+                    subject=agent_id,
                     predicate=scenario.action_bindings['aksi'],
                     object=scenario.action_bindings['target'],
                     metadata={"source": "simulation_commit"}
