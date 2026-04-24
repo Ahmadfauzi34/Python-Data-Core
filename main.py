@@ -77,19 +77,39 @@ with st.sidebar:
 
     st.markdown("---")
     st.subheader("Otonomi Kognitif")
-    if st.button("💤 Masuk Fase Tidur (Konsolidasi)", use_container_width=True):
-        with st.spinner("Mengkonsolidasi memori episodik..."):
-            n_rules = api.runner.sleep_and_consolidate()
-            st.success(f"Berhasil menginduksi {n_rules} aturan logis baru!")
 
-    if st.button("👁️ Simulasi Sandbox (Mock)", use_container_width=True):
-        with st.spinner("Menjalankan proyeksi simulasi..."):
-            best_id, best_bindings = api.runner.simulate_and_commit(
-                action_scenarios=[{"aksi": "sapa"}, {"aksi": "marah"}],
-                goal={"aksi": "sapa"},
-                current_state={"agen": "user", "aksi": "sapa"}
-            )
-            st.success(f"Skenario terpilih: {best_id} -> {best_bindings}")
+    with st.expander("💤 Fase Tidur (Konsolidasi)", expanded=False):
+        st.write("Menganalisis memori untuk menemukan pola baru.")
+        if st.button("Jalankan Analisis", use_container_width=True):
+            with st.spinner("Mengkonsolidasi..."):
+                new_rules = api.runner.sleep_and_consolidate(dry_run=True)
+                st.session_state['pending_rules'] = new_rules
+                if not new_rules:
+                    st.info("Tidak ada aturan baru yang ditemukan saat ini.")
+
+        if 'pending_rules' in st.session_state and st.session_state['pending_rules']:
+            st.write("Aturan Ditemukan:")
+            for r in st.session_state['pending_rules']:
+                st.code(f"Jika {r['premise']} -> {r['conclusion']} (Conf: {r['confidence']})")
+            if st.button("Simpan Permanen ke .auto.yaml", type="primary", use_container_width=True):
+                api.runner.consolidator.persist_rules_to_dataset(st.session_state['pending_rules'])
+                st.success("Tersimpan!")
+                st.session_state['pending_rules'] = []
+
+    with st.expander("👁️ Simulasi Sandbox", expanded=False):
+        st.write("Proyeksi tindakan sebelum bertindak.")
+        sim_goal = st.text_input("Goal (Aksi yang diinginkan)", value="sapa")
+        act_1 = st.text_input("Opsi Aksi 1", value="sapa")
+        act_2 = st.text_input("Opsi Aksi 2", value="marah")
+
+        if st.button("Jalankan Simulasi", use_container_width=True):
+            with st.spinner("Menjalankan proyeksi..."):
+                best_id, best_bindings = api.runner.simulate_and_commit(
+                    action_scenarios=[{"aksi": act_1}, {"aksi": act_2}],
+                    goal={"aksi": sim_goal},
+                    current_state={"agen": "user", "aksi": "tunggu"}
+                )
+                st.success(f"Skenario terpilih: {best_id} -> {best_bindings}")
 
 # -----------------------------------------------------------------------------
 # UI

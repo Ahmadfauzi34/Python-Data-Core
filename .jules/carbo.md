@@ -76,3 +76,11 @@
 **Context:** Following code review, it was noted that the cognitive modules (`SimulationSpace`, `TextIngestor`, `MetaCognitiveConsolidator`) had high-level integration methods written into `fhrr_project/core/runner.py`, but were never instantiated in the constructor, causing `AttributeError`s. Furthermore, the `Role` constant redundancy in the ingestor needed cleanup, and a hook needed to be exposed in the UI.
 **Decision:** Patched `FHRRResearchRunner.__init__` to explicitly instantiate the three new cognitive modules. Cleaned up redundant string array checks in `text_ingestor.py`. Edited `main.py` (Streamlit UI) to include a "💤 Masuk Fase Tidur (Konsolidasi)" button in the sidebar, which natively calls the runner's `sleep_and_consolidate()` method to trigger meta-learning directly from the frontend.
 **Consequences:** The cognitive pipeline is now functionally complete, safely integrated from the deep mathematical layer all the way up to the user-facing Streamlit application.
+
+## 2024-05-18 - [⬡ Carbo] - [Refinement: UI Confirmation and Simulation Context]
+**Context:** Following architectural reviews, a few UX and CI concerns needed addressing. `test_consolidation` used a hardcoded `/tmp` which is unsafe for parallel CI. The simulation `commit()` was blindly assigning agent IDs. The UI lacked confirmation for saving auto-induced rules.
+**Decision:**
+1. Tests were updated to use `tempfile.TemporaryDirectory()`.
+2. `SimulationSpace` now securely maps and retains `_base_bindings` across the fork, properly feeding the initiating agent ID back into the `KGTriple` during `commit()`.
+3. The UI now triggers `sleep_and_consolidate(dry_run=True)`. Induced rules are previewed in a `st.code` block, requiring the user to explicitly click "Simpan Permanen" before mutating the `.auto.yaml` dataset. The simulation sandbox was un-mocked and now accepts dynamic parameter inputs.
+**Consequences:** System is robust against CI conflicts, agent identity tracking is logically preserved through simulated branching, and the user interface for meta-learning operations is safe and transparent.

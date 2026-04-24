@@ -75,3 +75,11 @@
 **Context:** The previous runner integration incorrectly defined the module attachment hooks (`attach_topology` and `attach_kg`) twice, leaving the new modules uninitialized. It also mistakenly referenced `self.kg` instead of the internal `self._kg` reference for the Knowledge Graph.
 **Decision:** Patched `fhrr_project/core/runner.py` to remove duplicate function definitions. Changed the simulation commit hook from `self.simulation_space.commit(best, self.kg)` to the correct `self._kg` attribute.
 **Consequences:** The UI buttons calling the cognitive modules (Simulation and Consolidation) no longer crash with AttributeErrors. Integration is complete.
+
+## 2024-05-18 - [⬡ Carbo] - [Refinement: UI Confirmation and Simulation Context]
+**Context:** Following architectural reviews, a few UX and CI concerns needed addressing. `test_consolidation` used a hardcoded `/tmp` which is unsafe for parallel CI. The simulation `commit()` was blindly assigning agent IDs. The UI lacked confirmation for saving auto-induced rules.
+**Decision:**
+1. Tests were updated to use `tempfile.TemporaryDirectory()`.
+2. `SimulationSpace` now securely maps and retains `_base_bindings` across the fork, properly feeding the initiating agent ID back into the `KGTriple` during `commit()`.
+3. The UI now triggers `sleep_and_consolidate(dry_run=True)`. Induced rules are previewed in a `st.code` block, requiring the user to explicitly click "Simpan Permanen" before mutating the `.auto.yaml` dataset. The simulation sandbox was un-mocked and now accepts dynamic parameter inputs.
+**Consequences:** System is robust against CI conflicts, agent identity tracking is logically preserved through simulated branching, and the user interface for meta-learning operations is safe and transparent.

@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
 import os
+import tempfile
 from fhrr_project.core.engine import FHRREngine
 from fhrr_project.memory.consolidation import MetaCognitiveConsolidator
 
@@ -13,12 +14,12 @@ class ConsolidatorTests(unittest.TestCase):
         self.engine.add_role("predikat")
         self.engine.add_role("atribut")
 
-        self.consolidator = MetaCognitiveConsolidator(self.engine, dataset_dir="/tmp/")
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.consolidator = MetaCognitiveConsolidator(self.engine, dataset_dir=self.temp_dir.name)
+        self.staging_file = os.path.join(self.temp_dir.name, "reasoning_patterns.auto.yaml")
 
-        # Cleanup staging file if exists
-        self.staging_file = "/tmp/reasoning_patterns.auto.yaml"
-        if os.path.exists(self.staging_file):
-            os.remove(self.staging_file)
+    def tearDown(self):
+        self.temp_dir.cleanup()
 
     def test_consolidation_rule_induction(self):
         # Seed 3 highly similar transforms
