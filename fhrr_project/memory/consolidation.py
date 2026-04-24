@@ -95,20 +95,20 @@ class MetaCognitiveConsolidator:
         S = np.sin(vectors)
         sim_mat = (C @ C.T + S @ S.T) / self.engine.dim
 
-        visited = set()
+        visited = np.zeros(n, dtype=bool)
         induced_rules = []
 
         for i in range(n):
-            if i in visited:
+            if visited[i]:
                 continue
 
-            cluster_indices = [i]
-            for j in range(i + 1, n):
-                if j not in visited and sim_mat[i, j] >= threshold:
-                    cluster_indices.append(j)
+            # Vectorized cluster mask
+            mask = (~visited) & (sim_mat[i] >= threshold)
+            mask[i] = True  # always include self
+            cluster_indices = np.where(mask)[0]
 
             if len(cluster_indices) >= self.min_cluster_size:
-                visited.update(cluster_indices)
+                visited[cluster_indices] = True
 
                 evidence = [pool[idx] for idx in cluster_indices]
                 from_tokens = [e['from'] for e in evidence]
