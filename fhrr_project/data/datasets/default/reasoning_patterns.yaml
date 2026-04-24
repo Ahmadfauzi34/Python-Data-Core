@@ -84,3 +84,32 @@ reasoning_patterns:
   mechanism: association
   confidence: 0.9
   explanation: laboratorium berada di dalam sekolah
+- id: r10
+  name: causal_sell_rich
+  premise:
+    predikat: jual
+    atribut: mahal
+  conclusion:
+    atribut: kaya
+  mechanism: transform
+  confidence: 0.8
+  explanation: menjual barang mahal bisa membuat menjadi kaya
+- id: r11
+  name: association_singer_guitar
+  premise:
+    agen: penyanyi
+  conclusion:
+    instrumen: gitar
+  mechanism: association
+  confidence: 0.7
+  explanation: penyanyi sering berasosiasi dengan gitar
+- id: r12
+  name: spatial_cow_mountain
+  premise:
+    agen: sapi
+    predikat: makan
+  conclusion:
+    pasien: rumput
+  mechanism: transform
+  confidence: 0.9
+  explanation: sapi makan rumput

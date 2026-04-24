@@ -116,3 +116,40 @@ observations:
     predikat: turun
     lokasi: luar
     waktu: sekarang
+- id: o16
+  type: event
+  bindings:
+    agen: penulis
+    predikat: beli
+    pasien: buku
+    lokasi: perpustakaan
+    atribut: kaya
+- id: o17
+  type: event
+  bindings:
+    agen: kuda
+    predikat: lari
+    lokasi: pantai
+    atribut: cepat
+- id: o18
+  type: event
+  bindings:
+    agen: penyanyi
+    predikat: bawa
+    pasien: gitar
+    lokasi: taman
+- id: o19
+  type: event
+  bindings:
+    agen: sapi
+    predikat: makan
+    pasien: rumput
+    lokasi: gunung
+- id: o20
+  type: event
+  bindings:
+    agen: pelukis
+    predikat: jual
+    pasien: lukisan
+    lokasi: pasar
+    atribut: mahal
