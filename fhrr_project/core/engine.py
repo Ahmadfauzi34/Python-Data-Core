@@ -43,6 +43,12 @@ class FHRREngine:
         self.episodic_capacity: int = 5000
         self.episodic_buffer: List[Dict[str, Any]] = []
         self.episodic_head: int = 0
+
+        # Vectorized buffers for episodic memory
+        self._episodic_C_v: Optional[np.ndarray] = None
+        self._episodic_S_v: Optional[np.ndarray] = None
+        self._episodic_decay: Optional[np.ndarray] = None
+
         self._ws = np.zeros(dim)
         self._ws2 = np.zeros(dim)
         self._cbuf = np.zeros(dim, dtype=np.complex128)
@@ -284,6 +290,11 @@ class FHRREngine:
         else:
             self.episodic_buffer.append(entry)
 
+        # Invalidate the vectorized buffer cache
+        self._episodic_C_v = None
+        self._episodic_S_v = None
+        self._episodic_decay = None
+
     def apply_decay(self, current_time: Optional[float] = None, decay_rate: float = 0.001):
         if current_time is None:
             current_time = time.time()
@@ -297,15 +308,32 @@ class FHRREngine:
                                   np.random.normal(0, noise_level, self.dim)) % (2 * np.pi)
 
     def query_episodic(self, query_vec: np.ndarray, threshold: float = 0.4):
-        best_match = None
-        best_score = -1.0
-        for entry in self.episodic_buffer:
-            raw_sim = self.sim(query_vec, entry['vector'])
-            compensated = raw_sim * entry['decay_factor']
-            if compensated > best_score:
-                best_score = compensated
-                best_match = entry
-        if best_match and best_score > threshold:
+        if not self.episodic_buffer:
+            return None, -1.0
+
+        # Vectorized episodic memory search with maintained buffer
+        if self._episodic_C_v is None or len(self._episodic_C_v) != len(self.episodic_buffer):
+            vectors = np.array([e['vector'] for e in self.episodic_buffer])
+            self._episodic_C_v = np.cos(vectors)
+            self._episodic_S_v = np.sin(vectors)
+            self._episodic_decay = np.array([e['decay_factor'] for e in self.episodic_buffer])
+        else:
+            # Refresh decay factors in case apply_decay was called
+            # To be 100% safe, we can just rebuild it or selectively update
+            self._episodic_decay = np.array([e['decay_factor'] for e in self.episodic_buffer])
+
+        C_q = np.cos(query_vec)
+        S_q = np.sin(query_vec)
+
+        # sim_arr shape: (N,)
+        sim_arr = (self._episodic_C_v @ C_q + self._episodic_S_v @ S_q) / self.dim
+        compensated = sim_arr * self._episodic_decay
+
+        best_idx = np.argmax(compensated)
+        best_score = float(compensated[best_idx])
+
+        if best_score > threshold:
+            best_match = self.episodic_buffer[best_idx]
             best_match['access_count'] += 1
             return best_match, best_score
         return None, best_score

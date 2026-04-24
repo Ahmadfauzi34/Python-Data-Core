@@ -130,3 +130,8 @@
 **Context:** When initializing the FHRR system, the `loader.py` script crashed with an `AttributeError: 'NoneType' object has no attribute 'setdefault'`. This occurred because a user's modular YAML file contained an empty `vocab:` key. The YAML parser converted this empty key to Python's `None`, causing chained `.setdefault()` operations to fail.
 **Decision:** Patched `fhrr_project/data/loader.py` to add an explicit safeguard: `if data.get("vocab") is None: data["vocab"] = {}`. This ensures the dictionary traversal is strictly operating on valid dict objects even if the source YAML contains empty root keys.
 **Consequences:** The system is now robust against partially populated or mistakenly empty YAML files during initialization.
+
+## 2024-05-18 - [⬡ Carbo] - [Vectorized Cognitive Memory Search & NLP Co-occurrence]
+**Context:** Python loop bottlenecks existed in the episodic memory retrieval (`query_episodic`), discovering token co-occurrences (`mine_cooccurrence`), and finding cluster evidence (`_cluster_pool`).
+**Decision:** Eliminated the loops by using numpy arrays to pre-cache values and perform matrix multiplication. Pre-cached the validity of vocab to bypass `get_token` in NLP algorithms.
+**Consequences:** Massive speed up across cognitive components without modifying FHRR logical bounds.

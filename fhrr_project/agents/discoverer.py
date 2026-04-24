@@ -139,16 +139,28 @@ class SelfSupervisedDiscovery:
         return p / (p.sum() + 1e-12)
 
     def mine_cooccurrence(self):
+        # Pre-cache whether a token is valid to avoid calling get_token inside tight loops
+        valid_tokens = set(self.engine.token_names)
+        freq_cache = {t: self._token_freq(t) for t in valid_tokens}
+
         for sent in self.sentences:
             n = len(sent)
             for i in range(n):
+                t1 = sent[i]
+                if t1 not in valid_tokens:
+                    continue
+                f1 = freq_cache.get(t1, 0)
+
                 for j in range(i + 1, min(n, i + self.window + 1)):
-                    t1, t2 = sent[i], sent[j]
-                    if self.engine.get_token(t1) is None or self.engine.get_token(t2) is None:
+                    t2 = sent[j]
+                    if t2 not in valid_tokens:
                         continue
-                    if self._token_freq(t1) > self._token_freq(t2):
-                        t1, t2 = t2, t1
-                    self.cooccurrence[(t1, t2)] += 1
+                    f2 = freq_cache.get(t2, 0)
+
+                    if f1 > f2:
+                        self.cooccurrence[(t2, t1)] += 1
+                    else:
+                        self.cooccurrence[(t1, t2)] += 1
         print(f"[Discovery] Co-occurrence pairs: {len(self.cooccurrence)}")
 
     def _token_freq(self, token: str) -> int:
