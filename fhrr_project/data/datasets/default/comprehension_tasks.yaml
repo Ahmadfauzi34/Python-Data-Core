@@ -11,7 +11,7 @@ comprehension_tasks:
   inference_needed: false
 - id: c2
   context: o1
-  question: apakah anak senang setelah makan?
+  question: apakah anak kenyang setelah makan?
   expected_answer: ya
   required_bindings:
   - agen
@@ -93,3 +93,47 @@ comprehension_tasks:
   - pasien
   inference_needed: true
   inference_rule: r12
+- id: c11
+  context: o17
+  question: apakah kuda berlari dengan cepat?
+  expected_answer: ya
+  required_bindings:
+  - agen
+  - predikat
+  inference_needed: true
+  inference_rule: r13
+- id: c12
+  context: o6
+  question: apakah kucing tenang saat tidur?
+  expected_answer: ya
+  required_bindings:
+  - agen
+  - predikat
+  inference_needed: true
+  inference_rule: r14
+- id: c13
+  context: o8
+  question: apakah dapur bersih saat ibu memasak?
+  expected_answer: ya
+  required_bindings:
+  - agen
+  - predikat
+  - lokasi
+  inference_needed: false
+- id: c14
+  context: o15
+  question: apakah hujan turun di luar?
+  expected_answer: ya
+  required_bindings:
+  - pasien
+  - predikat
+  - lokasi
+  inference_needed: false
+- id: c15
+  context: o21
+  question: apakah gajah besar?
+  expected_answer: ya
+  required_bindings:
+  - agen
+  - atribut
+  inference_needed: false

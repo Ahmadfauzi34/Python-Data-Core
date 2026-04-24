@@ -33,12 +33,14 @@ qa_pairs:
   source: o1
   reasoning: cari waktu dari peristiwa
 - id: qa5
-  question: mengapa tanah basah?
+  question: apa yang ditulis guru?
   q_focus:
-  - atribut
-  answer_role: agen
+  - agen
+  - predikat
+  - instrumen
+  answer_role: pasien
   source: o2
-  reasoning: inferensi kausal dari basah ke penyebab
+  reasoning: cari pasien dari aksi tulis oleh guru dengan kapur
 - id: qa6
   question: apa yang digunakan ayah untuk memotong?
   q_focus:
@@ -48,13 +50,13 @@ qa_pairs:
   source: o7
   reasoning: cari instrumen dari aksi potong
 - id: qa7
-  question: bagaimana perasaan anak setelah makan?
+  question: apakah anak kenyang setelah makan?
   q_focus:
   - agen
   - predikat
   answer_role: atribut
   source: o1
-  reasoning: inferensi emosi dari aksi makan
+  reasoning: inferensi kekenyangan dari aksi makan
 - id: qa8
   question: apa yang dikendarai polisi?
   q_focus:
@@ -96,3 +98,42 @@ qa_pairs:
   answer_role: agen
   source: o17
   reasoning: cari agen dari aksi lari di pantai
+- id: qa13
+  question: apa yang turun di luar?
+  q_focus:
+  - lokasi
+  answer_role: pasien
+  source: o15
+  reasoning: cari pasien dari peristiwa turun di luar
+- id: qa14
+  question: siapa yang tidur dengan tenang?
+  q_focus:
+  - predikat
+  - atribut
+  answer_role: agen
+  source: o6
+  reasoning: cari agen dari aksi tidur dengan atribut tenang
+- id: qa15
+  question: bagaimana perasaan kucing saat tidur?
+  q_focus:
+  - agen
+  - predikat
+  answer_role: atribut
+  source: o6
+  reasoning: cari atribut dari aksi tidur oleh kucing
+- id: qa16
+  question: siapa yang lari dengan cepat?
+  q_focus:
+  - predikat
+  - atribut
+  answer_role: agen
+  source: o17
+  reasoning: cari agen dari aksi lari dengan atribut cepat
+- id: qa17
+  question: di mana gajah berjalan?
+  q_focus:
+  - agen
+  - predikat
+  answer_role: lokasi
+  source: o21
+  reasoning: cari lokasi dari aksi jalan oleh gajah

@@ -134,3 +134,8 @@
 2. **Pre-cached Valid Tokens:** `mine_cooccurrence` now uses a pre-initialized set of valid vocabulary tokens and token frequencies to avoid high overhead dictionary lookups and validation checks inside its double loops.
 3. **Boolean Mask Clustering:** `_cluster_pool` changed from using nested Python iterations over combinations to boolean array indexing (`~visited & (sim_mat[i] >= threshold)`).
 **Consequences:** `query_episodic` runtime for 5000 entries dropped from ~0.60 seconds to ~0.01 seconds. `mine_cooccurrence` on a large corpus dropped from ~0.06s to ~0.02s. The codebase continues the paradigm of pure vector-level computation.
+
+## 2024-05-18 - [⬡ Carbo] - [Dataset Alignment Update]
+**Context:** During review, the user provided a revised set of QA and comprehension pairs to align with recent observations.
+**Decision:** Updated `qa_pairs.yaml` and `comprehension_tasks.yaml` using a python YAML dump script to ensure correct schema.
+**Consequences:** Datasets perfectly reflect the user's latest required semantic tests, and `pytest` confirms 100% test passing against the updated schema.
