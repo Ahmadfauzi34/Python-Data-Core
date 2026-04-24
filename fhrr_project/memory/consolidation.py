@@ -2,6 +2,9 @@ import numpy as np
 import time
 import yaml
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 from typing import List, Dict, Any, Tuple
 from fhrr_project.core.engine import FHRREngine
 from fhrr_project.core.roles import Role
@@ -161,4 +164,4 @@ class MetaCognitiveConsolidator:
         if added_count > 0:
             with open(filepath, "w") as f:
                 yaml.dump(data, f, sort_keys=False, allow_unicode=True)
-            print(f"[Consolidator] Permanently saved {added_count} new meta-rules to {filepath}")
+            logger.info(f"Permanently saved {added_count} new meta-rules to {filepath}")

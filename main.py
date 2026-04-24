@@ -46,6 +46,7 @@ with st.sidebar:
     if st.button("🔄 Re-init", use_container_width=True):
         st.cache_resource.clear()
         st.session_state.pop("messages", None)
+        st.session_state.pop("pending_rules", None)
         st.rerun()
 
     if st.button("🗑️ Bersihkan chat", use_container_width=True):
@@ -99,13 +100,24 @@ with st.sidebar:
     with st.expander("👁️ Simulasi Sandbox", expanded=False):
         st.write("Proyeksi tindakan sebelum bertindak.")
         sim_goal = st.text_input("Goal (Aksi yang diinginkan)", value="sapa")
-        act_1 = st.text_input("Opsi Aksi 1", value="sapa")
-        act_2 = st.text_input("Opsi Aksi 2", value="marah")
+        col1, col2 = st.columns(2)
+        with col1:
+            act_1 = st.text_input("Opsi Aksi 1", value="sapa")
+            act_1_tgt = st.text_input("Target Aksi 1 (Opsional)", value="budi")
+        with col2:
+            act_2 = st.text_input("Opsi Aksi 2", value="marah")
+            act_2_tgt = st.text_input("Target Aksi 2 (Opsional)", value="budi")
 
         if st.button("Jalankan Simulasi", use_container_width=True):
             with st.spinner("Menjalankan proyeksi..."):
+                scen_1 = {"aksi": act_1}
+                if act_1_tgt: scen_1["target"] = act_1_tgt
+
+                scen_2 = {"aksi": act_2}
+                if act_2_tgt: scen_2["target"] = act_2_tgt
+
                 best_id, best_bindings = api.runner.simulate_and_commit(
-                    action_scenarios=[{"aksi": act_1}, {"aksi": act_2}],
+                    action_scenarios=[scen_1, scen_2],
                     goal={"aksi": sim_goal},
                     current_state={"agen": "user", "aksi": "tunggu"}
                 )

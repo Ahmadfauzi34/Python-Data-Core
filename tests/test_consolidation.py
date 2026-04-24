@@ -32,8 +32,15 @@ class ConsolidatorTests(unittest.TestCase):
 
         self.engine.learn_transform_from_data("t2", "belajar", "pintar")
 
-        rules = self.consolidator.consolidate()
+        # Test Dry Run capability (should not write to disk)
+        from fhrr_project.core.runner import FHRRResearchRunner
+        runner = FHRRResearchRunner(dim=512)
+        runner.consolidator = self.consolidator
+        dry_rules = runner.sleep_and_consolidate(dry_run=True)
+        self.assertGreaterEqual(len(dry_rules), 1)
+        self.assertFalse(os.path.exists(self.staging_file))
 
+        rules = self.consolidator.consolidate()
         self.assertGreaterEqual(len(rules), 1)
         self.assertIn("auto_induced_", rules[0]['name'])
 
