@@ -63,5 +63,22 @@ class TestLoader(unittest.TestCase):
                 if os.path.exists(actual_ds_dir):
                     shutil.rmtree(actual_ds_dir)
 
+    def test_load_empty_directory(self):
+        """Test that loading a directory with no YAML files raises ValueError."""
+        empty_ds_dir = os.path.join("fhrr_project", "data", "datasets", "empty_test_ds")
+        try:
+            os.makedirs(empty_ds_dir, exist_ok=True)
+            # Create a non-yaml file to ensure it's truly not empty but has no YAML
+            with open(os.path.join(empty_ds_dir, "readme.txt"), "w") as f:
+                f.write("This is not a yaml file.")
+
+            with self.assertRaises(ValueError) as cm:
+                load_dataset("empty_test_ds")
+
+            self.assertIn("tidak memiliki file YAML", str(cm.exception))
+        finally:
+            if os.path.exists(empty_ds_dir):
+                shutil.rmtree(empty_ds_dir)
+
 if __name__ == '__main__':
     unittest.main()
